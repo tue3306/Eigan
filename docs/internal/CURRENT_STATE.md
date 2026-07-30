@@ -1,7 +1,7 @@
 # CURRENT_STATE — Estado atual do EIGAN (Fase 0)
 
 > **Propósito.** Retrato *verificado contra o código real* do que o EIGAN é hoje,
-> antes de qualquer trabalho do MASTER PROMPT v2. Cada afirmação factual aqui foi
+> antes de qualquer trabalho do roadmap de plataforma. Cada afirmação factual aqui foi
 > conferida no repositório (arquivos, testes executados, CI). Onde não verifiquei,
 > está marcado `NÃO VERIFICADO`. Nada de features inventadas (regra de veracidade §2).
 >
@@ -187,7 +187,7 @@ ADR‑0001/0003). Isto é uma força já entregue.
 
 ## 9. Lacunas honestas do estado atual (detalhe na GAP_ANALYSIS)
 
-Relativo ao alvo do MASTER PROMPT v2 (plataforma AI‑Native de Security Operations):
+Relativo ao alvo do roadmap de plataforma (plataforma AI‑Native de Security Operations):
 
 1. **Observabilidade de custo/token e tracing distribuído** — *ausente*. Não há
    contagem de tokens, custo por execução, nem tracing (`grep` por
@@ -220,7 +220,7 @@ Nenhuma dessas lacunas é um bug: são **escopo ainda não construído**. O que 
 
 O EIGAN **hoje** é um **agente ofensivo (pentest‑first) AI‑native, funcional e
 testado**, com núcleo cognitivo maduro, plumbing seguro, policy engine, API +
-dashboard e relatórios. É uma **base real** — não um protótipo. O MASTER PROMPT v2
+dashboard e relatórios. É uma **base real** — não um protótipo. O roadmap de plataforma
 o expande para uma **plataforma de Security Operations** (coluna defensiva de
 eventos, threat‑intel/RAG, workflow por grafo, observabilidade de custo,
 knowledge graph, agente de endpoint, learning). Ver `TARGET_ARCHITECTURE.md` e

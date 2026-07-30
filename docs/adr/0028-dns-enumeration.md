@@ -2,7 +2,7 @@
 
 - **Status:** aceito
 - **Data:** 2026-07-14
-- **Relacionado:** MASTER PROMPT v3 PROMPT 2 (profundidade de DNS); CLAUDE.md §2
+- **Relacionado:** profundidade de DNS (roadmap de plataforma); CLAUDE.md §2
   (veracidade — flags verificadas), §6 (plugin novo, Core intacto); ADR-0018
   (expansão de alvos), ADR-0001/0004 (capability/cascata)
 

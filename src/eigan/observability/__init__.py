@@ -1,4 +1,4 @@
-"""Observabilidade do EIGAN (§22 do MASTER PROMPT v2, ADR-0025).
+"""Observabilidade do EIGAN (ADR-0025).
 
 Nasce **com** a camada de IA, não como retrofit: instrumenta uso de tokens e
 custo de execução — a base para governança de custo de um produto AI-native.

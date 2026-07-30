@@ -200,7 +200,7 @@ def test_dashboard_omits_token_when_exposed(client, monkeypatch):
     assert "__EIGAN_TOKEN__" not in r.text
 
 
-# ── endpoints Purple / remediação (contrato HTTP) — PROMPT 8 ──────────────────
+# ── endpoints Purple / remediação (contrato HTTP) ──────────────────
 def _seed_blue_scan(db_path: str, technique: str = "T1190") -> int:
 
     from eigan.findings.schema import Finding, Severity

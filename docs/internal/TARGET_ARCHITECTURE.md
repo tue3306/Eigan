@@ -1,11 +1,11 @@
 # TARGET_ARCHITECTURE — Arquitetura‑alvo do EIGAN (Fase 0)
 
-> **Propósito.** Descrever *para onde* o EIGAN vai sob o MASTER PROMPT v2: de
+> **Propósito.** Descrever *para onde* o EIGAN vai sob o roadmap de plataforma: de
 > "agente de pentest AI‑native" para **plataforma AI‑Native de Security
 > Operations**, com identidade própria. Este documento é o **norte**; a
 > `GAP_ANALYSIS.md` diz o que falta e em que ordem construir.
 >
-> **Regras que moldam o alvo** (herdadas do `CLAUDE.md` e do MASTER PROMPT):
+> **Regras que moldam o alvo** (herdadas do `CLAUDE.md` e do roadmap de plataforma):
 > anti‑invenção/veracidade (§2/§3.1), autorização/escopo sempre, IA obrigatória,
 > secure‑by‑default, **anti over‑engineering** (padrões só onde reduzem custo real),
 > **plugin‑first** (Core pequeno), evolução incremental com portões.
@@ -13,7 +13,7 @@
 > **Referências conceituais** (só o *porquê*, nunca código): **Strix** (orquestração
 > multi‑agente por grafo, sandbox, PoC) e **Wazuh** (operações defensivas em escala:
 > pipeline de eventos, agente de endpoint, rule engine). Inspiração registrada em
-> ADR; implementação 100 % original (§3 do MASTER PROMPT).
+> ADR; implementação 100 % original (princípio de originalidade do EIGAN).
 
 ---
 
@@ -94,7 +94,7 @@ infraestrutura**. Interfaces e adapters são substituíveis sem tocar o domínio
 
 ---
 
-## 3. AI Engine — camadas separadas (MASTER PROMPT §8), nunca um agente monolítico
+## 3. AI Engine — camadas separadas (roadmap de plataforma), nunca um agente monolítico
 
 ```mermaid
 flowchart LR
@@ -264,9 +264,9 @@ negócio no frontend (tudo de `/api/v1`).
 ## 13. Estrutura de diretórios‑alvo (adaptada ao repo real)
 
 O alvo **não** exige renomear a árvore atual de `src/eigan/`. Os módulos‑alvo do
-MASTER PROMPT §9/§10 mapeiam para a estrutura existente, crescendo por adição:
+roadmap de plataforma mapeiam para a estrutura existente, crescendo por adição:
 
-| Módulo‑alvo (MASTER PROMPT) | Onde vive/viverá no EIGAN |
+| Módulo‑alvo (roadmap) | Onde vive/viverá no EIGAN |
 |---|---|
 | `core` (contratos/portas) | `capability.py`, `perspective.py`, `findings/schema.py`, protocols em `engine/` |
 | `ai_engine` (planning/reasoning/execution/validation/memory/reflection/learning) | `engine/cognitive/` (evolui: +reasoning/reflection/learning/memory) |
@@ -288,12 +288,12 @@ MASTER PROMPT §9/§10 mapeiam para a estrutura existente, crescendo por adiçã
 
 ## 14. Divergência declarada vs. `CLAUDE.md` atual (rastreabilidade §3 do CLAUDE.md)
 
-O MASTER PROMPT v2 **estende** o `CLAUDE.md` atual e, em alguns pontos, **diverge**
+O roadmap de plataforma **estende** o `CLAUDE.md` atual e, em alguns pontos, **diverge**
 — o que é permitido desde que registrado (regra do próprio `CLAUDE.md`):
 
 1. **Escopo do produto:** de "scanner AI‑native Web+Infra" → "plataforma de
    Security Operations" (coluna defensiva de *eventos*, endpoint agent, KG, RAG).
-2. **`CLAUDE.md`:** o MASTER PROMPT §30 pede **reescrever** o `CLAUDE.md` do zero
+2. **`CLAUDE.md`:** o roadmap de plataforma pede **reescrever** o `CLAUDE.md` do zero
    como constituição única. → **Fase 7**, não agora (evita perder as linhas
    vermelhas atuais durante a transição).
 3. **Módulos novos** (event bus, workflow DAG, knowledge graph, observabilidade de

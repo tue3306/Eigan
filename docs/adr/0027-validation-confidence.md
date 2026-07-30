@@ -2,7 +2,7 @@
 
 - **Status:** aceito
 - **Data:** 2026-07-14
-- **Relacionado:** MASTER PROMPT v2 §16 (prova de vulnerabilidade / anti-falso-positivo),
+- **Relacionado:** prova de vulnerabilidade / anti-falso-positivo (roadmap de plataforma),
   §8 (camada de *Validation* separada); CLAUDE.md §2/§3.1 (veracidade, anti-invenção),
   §11 (schema de finding com `confidence`/`status`); ADR-0002 (risk)
 

@@ -2,11 +2,11 @@
 
 - **Status:** aceito
 - **Data:** 2026-07-14
-- **Relacionado:** MASTER PROMPT v2 §22 (observabilidade desde o dia 1) e §19
-  (token usage/custo no dashboard); CLAUDE.md §2/§3.1/§5 (veracidade, anti-invenção);
+- **Relacionado:** observabilidade desde o dia 1 e governança de custo/tokens no
+  dashboard (roadmap de plataforma); CLAUDE.md §2/§3.1/§5 (veracidade, anti-invenção);
   ADR-0010 (provedores de IA)
 - **Inspiração conceitual:** a disciplina de "observabilidade nasce com o módulo"
-  é princípio do MASTER PROMPT; implementação 100% original do EIGAN.
+  é princípio do EIGAN; implementação 100% original.
 
 ## Contexto
 

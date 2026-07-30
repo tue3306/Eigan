@@ -2,12 +2,12 @@
 
 - **Status:** aceito
 - **Data:** 2026-07-14
-- **Relacionado:** MASTER PROMPT v2 §9 (módulo event-bus), §11 (agentes colaboram
-  por eventos, nunca chamada acoplada), §13 (estágios do pipeline publicam), §22
-  (métricas observam eventos); CLAUDE.md §6/§18 (event-driven); ADR-0004 (EventSink)
+- **Relacionado:** módulo event-bus; agentes colaboram por eventos (nunca chamada
+  acoplada); estágios do pipeline publicam; métricas observam eventos — roadmap de
+  plataforma; CLAUDE.md §6/§18 (event-driven); ADR-0004 (EventSink)
 - **Inspiração conceitual:** o desacoplamento produtor→consumidor por eventos do
   **Wazuh** (pipeline de eventos plugável). Implementação 100% original e enxuta;
-  **nenhum código** de terceiros reutilizado (§3 do MASTER PROMPT).
+  **nenhum código** de terceiros reutilizado (originalidade — princípio do EIGAN).
 
 ## Contexto
 

@@ -1,7 +1,7 @@
 # GAP_ANALYSIS — EIGAN × capacidades‑alvo (Fase 0)
 
-> **Propósito.** Matriz honesta *EIGAN de hoje* × *plataforma‑alvo* do MASTER
-> PROMPT v2, mais comparações conceituais **EIGAN × Strix** e **EIGAN × Wazuh**.
+> **Propósito.** Matriz honesta *EIGAN de hoje* × *plataforma‑alvo* do roadmap
+> de plataforma, mais comparações conceituais **EIGAN × Strix** e **EIGAN × Wazuh**.
 > Base para priorizar as Fases 1–7. **Regra de veracidade:** o estado "existe" foi
 > conferido no código (`b7fdcba`); os fatos sobre Strix/Wazuh vêm dos **READMEs
 > oficiais** (fetch em 2026‑07‑14) e estão marcados quando conceituais.
@@ -119,7 +119,7 @@ preservar:** a **IA é o núcleo** (não um add‑on a um rule engine).
 
 ---
 
-## 4. Sequenciamento recomendado (mapeado às Fases do MASTER PROMPT)
+## 4. Sequenciamento recomendado (mapeado às Fases do roadmap de plataforma)
 
 Ordenado por **valor destravado / esforço**, respeitando os portões:
 

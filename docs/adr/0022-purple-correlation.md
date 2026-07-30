@@ -27,6 +27,6 @@ Produz `PurpleReport` (covered/gaps/detection_only + `coverage_pct`). A IA apena
 ## Consequências
 
 - **Positivas:** pontos cegos explícitos e acionáveis; base para o **Purple loop**
-  autônomo (gerar regra Sigma para cada gap — roadmap/PROMPT 5).
+  autônomo (gerar regra Sigma para cada gap — roadmap).
 - **Custos:** a correlação é no nível de família de técnica (não sub-técnica exata)
   para evitar falsos gaps por granularidade — decisão conservadora e honesta.

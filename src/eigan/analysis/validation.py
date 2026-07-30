@@ -1,6 +1,6 @@
 """Validação de findings — confiança EXPLÍCITA e grounded (§16 anti-falso-positivo).
 
-O MASTER PROMPT v2 §16 exige: toda finding com **nível de confiança explícito**, e
+A política de validação do EIGAN (ADR-0027) exige: toda finding com **nível de confiança explícito**, e
 findings não validadas **marcadas como tais** — nunca empurrar falso-positivo como
 fato. Esta camada é a etapa de *Validation* do §8, separada e testável.
 

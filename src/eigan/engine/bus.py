@@ -1,4 +1,4 @@
-"""Event Bus — publicação/assinatura in-process, síncrona (MASTER PROMPT v2 §9/§13).
+"""Event Bus — publicação/assinatura in-process, síncrona (ADR-0026).
 
 Hoje o Core emite eventos por um único :class:`~eigan.engine.events.EventSink`
 (o broadcaster WS). Conforme a plataforma cresce (§11 agentes colaboram por
