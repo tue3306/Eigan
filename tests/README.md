@@ -18,10 +18,15 @@ pytest -q
 
 ## Política de alvos (inegociável)
 
-Testes de integração rodam **somente contra alvos vulneráveis locais**
-(DVWA / OWASP Juice Shop em container), **nunca** contra terceiros. Testes que
-dependeriam de rede externa ou de uma ferramenta ausente são marcados `skip`
-com motivo — a suíte permanece verde offline.
+Qualquer teste de integração roda **exclusivamente contra alvos vulneráveis
+locais** (DVWA / OWASP Juice Shop em container), **nunca** contra terceiros.
+Testes que dependeriam de rede externa ou de uma ferramenta ausente são marcados
+`skip` com motivo — a suíte permanece verde offline.
+
+> **Estado atual (honesto):** ainda **não há** uma suíte de integração versionada
+> (`@pytest.mark.integration` + `docker-compose.integration.yml`). Ela está
+> planejada (ver `docs/BLOCKERS.md`); quando existir, seguirá esta política. Até
+> lá, a suíte é 100% unitária/de contrato e roda offline.
 
 ## Definition of Done
 

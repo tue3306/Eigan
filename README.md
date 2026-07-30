@@ -38,9 +38,9 @@
 > Scanning ativo de vulnerabilidades **sem autorização documentada é ilegal** em muitas
 > jurisdições. O EIGAN **bloqueia por padrão** qualquer alvo fora de um escopo autorizado e
 > exige confirmação de autorização a cada execução. Você é o **único responsável** por operar
-> apenas contra sistemas que possui ou tem permissão escrita para testar. Os testes de
-> integração rodam somente contra alvos vulneráveis **locais** (DVWA/Juice Shop), nunca contra
-> terceiros.
+> apenas contra sistemas que possui ou tem permissão escrita para testar. Qualquer teste de
+> integração deve rodar exclusivamente contra alvos vulneráveis **locais** (DVWA/Juice Shop),
+> nunca contra terceiros.
 
 > ### 🚧 Status do projeto — pré-alfa (`0.0.0`)
 > Sem release publicado ainda. O **núcleo agêntico** e o **Recon (Red)** rodam de ponta a
