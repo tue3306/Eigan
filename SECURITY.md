@@ -6,13 +6,13 @@ legalidade).
 
 ## Versões suportadas
 
-O projeto está em desenvolvimento ativo (pré-1.0). Correções de segurança são
-aplicadas sobre a **última release** e o branch `main`.
+O projeto está em desenvolvimento ativo (pré-alfa, `0.0.0`) — **ainda não há
+releases publicadas**. Correções de segurança são aplicadas sobre o branch `main`,
+a única linha suportada até a primeira release.
 
 | Versão | Suportada |
 |--------|-----------|
-| 0.2.x  | ✅ |
-| < 0.2  | ❌ |
+| `0.0.0` (pré-alfa, `main`) | ✅ |
 
 ## Como reportar uma vulnerabilidade
 
