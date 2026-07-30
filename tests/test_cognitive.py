@@ -428,7 +428,7 @@ def test_engine_runs_recon_end_to_end():
     # capacidades sem plugin viram sugestão/scaffold, nunca fingem rodar.
     assert "suggested" in actions
     assert report.stop_reason in (StopReason.PLAN_EXHAUSTED, StopReason.NO_NEW_EVIDENCE)
-    assert report.ai_used is False  # sem IA → determinístico
+    assert report.ai_used is False  # substrato: sem CompletionPort, usa o DeterministicPlanner (piso)
 
 
 def test_engine_plan_only_does_not_execute():
@@ -499,7 +499,7 @@ def test_report_captures_token_usage_from_ai_calls():
     assert report.ai_calls >= 1
     assert report.token_usage.total_tokens == report.ai_calls * 42  # 30+12 por chamada
     assert report.token_usage_by_model.get("fake:modelo-x") is not None
-    # um scan sem IA não inventa tokens: o report fica zerado.
+    # substrato determinístico (engine sem CompletionPort) não gera tokens: report zerado.
     plain = CognitiveEngine(_engine_registry())
     plain_report = plain.run(Goal.build(GoalKind.ATTACK_SURFACE, ["example.com"]), scope=scope)
     assert plain_report.ai_calls == 0 and plain_report.token_usage.total_tokens == 0
@@ -555,8 +555,9 @@ def test_replan_smb_finding_chains_to_enumeration_and_nse():
     assert all(s.origin == "cascade" for s in plan.steps)
 
 
-def test_engine_without_ai_still_delivers_scan():
-    # fallback: sem chave de IA, o loop determinístico entrega scan + findings.
+def test_engine_substrate_delivers_scan_without_completion_port():
+    # substrato: sem CompletionPort o engine usa o DeterministicPlanner (piso de
+    # segurança) e entrega scan + findings — testável isolado, não é "modo sem IA".
     engine = CognitiveEngine(_engine_registry())  # completion=None
     scope = build_scope(None, ["example.com"], P.EXTERNAL)
     report = engine.run(Goal.build(GoalKind.ATTACK_SURFACE, ["example.com"]), scope=scope)
