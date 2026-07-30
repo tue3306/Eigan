@@ -45,7 +45,9 @@ versionado (o onboarding grava em `.env`, fora do git, `chmod 600`).
 - Trocar de provedor é uma variável de ambiente; adicionar provedor é um
   `ProviderSpec` — extensível sem tocar no núcleo (mesmo espírito de plugins).
 - Ver `docs/ai-providers.md` (guia de uso + quais APIs recomendadas para scanning).
-- Fallback determinístico intacto: sem provedor, tudo funciona.
+- Fallback determinístico intacto como **substrato** que a IA comanda. *(Superado por
+  [ADR-0012](0012-ai-native-mandatory.md): sem provedor **não há scan** — o
+  determinístico não é um "modo sem IA".)*
 
 ## Como validar
 

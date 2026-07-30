@@ -5,6 +5,10 @@
 - **Relaciona-se com:** [ADR-0001](0001-plugin-capability-architecture.md)
   (capabilities), [ADR-0004](0004-cascade-orchestration-and-web-ui.md) (cascata
   determinística), [ADR-0002](0002-risk-engine-feeds.md) (risco/feeds)
+- **Superado em parte por:** [ADR-0012](0012-ai-native-mandatory.md) — a IA é
+  **obrigatória**. O "fallback determinístico" abaixo permanece como **substrato**
+  (piso de segurança + resiliência intra-scan), não como "modo sem IA": sem provedor,
+  o scan é recusado.
 
 ## Contexto
 
@@ -22,9 +26,10 @@ Restrições inegociáveis do CLAUDE.md que moldam a decisão:
   é explícita: *a IA escolhe Capability; o Tool Selection Engine escolhe a
   ferramenta; o Execution Engine executa; o Feedback retorna; o Planner decide de
   novo.* Nenhum atalho da IA para execução direta.
-- **Todo recurso de IA tem fallback determinístico** (§3.4/§7): sem chave, o
-  Planner cai no plano determinístico + grafo de cascata, e o produto funciona
-  inteiro.
+- **Todo recurso de IA tem fallback determinístico** (§3.4/§7): sem provedor/erro, o
+  Planner cai no plano determinístico + grafo de cascata (o **substrato**). *(Superado
+  por [ADR-0012](0012-ai-native-mandatory.md): isso é resiliência intra-scan, não um
+  "modo sem IA" — sem provedor, o scan é recusado.)*
 - **Autorização/escopo são pré-condição de toda ação ativa** (§2): o consent gate
   precede a execução; `scope.enforce` roda por alvo, defesa em profundidade.
 - **Auditabilidade total, nada de caixa-preta** (§3.4): *toda* escolha é logada e

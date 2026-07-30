@@ -5,6 +5,11 @@
 - **Relaciona-se com:** [ADR-0007](0007-cognitive-core-planner.md) (núcleo
   cognitivo: Planner/Capabilities/Agents), [ADR-0004](0004-cascade-orchestration-and-web-ui.md)
   (cascata determinística), [ADR-0002](0002-risk-engine-feeds.md) (risco/feeds)
+- **Superado em parte por:** [ADR-0012](0012-ai-native-mandatory.md) — a IA passou a
+  ser **obrigatória** (AI-native). Onde este ADR diz "sem chave, o produto funciona
+  inteiro", leia: o substrato determinístico (cascata, ToolSelector, Policy Engine)
+  **existe e é o piso de segurança que a IA comanda**, mas **não há "modo sem IA" que
+  produza um scan** — sem provedor, o EIGAN recusa (P5).
 
 ## Contexto
 
@@ -19,8 +24,9 @@ Restrições inegociáveis (CLAUDE.md) que valem para todos os pilares:
 
 - **A IA planeja/prioriza/interpreta; o engine determinístico executa e detecta**
   (§3.3). Fronteira explícita no código e nos logs.
-- **Todo recurso de IA tem fallback determinístico** (§3.4): sem chave, o produto
-  funciona inteiro.
+- **Todo recurso de IA tem fallback determinístico** (§3.4). *(Superado por
+  [ADR-0012](0012-ai-native-mandatory.md): o fallback é resiliência intra-scan do
+  substrato que a IA comanda, **não** um "modo sem IA" — sem provedor não há scan.)*
 - **Autorização/escopo são pré-condição de toda ação ativa** (§2); consent gate
   nunca contornado por agente/planner.
 - **Anti-invenção** (§3.1): enriquecimento externo só de fonte oficial, ou

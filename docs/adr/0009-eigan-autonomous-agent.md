@@ -4,6 +4,10 @@
 - **Data:** 2026-07-11
 - **Contexto de:** ADR-0004 (cascata + web), ADR-0007 (núcleo cognitivo),
   ADR-0008 (10 pilares)
+- **Superado em parte por:** [ADR-0012](0012-ai-native-mandatory.md) — fixa a IA como
+  **obrigatória**. A frase adiante "Sem IA, o produto segue completo" reflete a
+  postura AI-opcional anterior e **não vale mais**: sem provedor, o scan é recusado
+  (o determinístico é substrato, não "modo sem IA").
 
 ## Contexto
 
@@ -81,7 +85,9 @@ para uso por grandes empresas e auditoria de terceiros:
 
 - **Positivas:** experiência de agente autônomo real (planeja/reage/decide), com
   autonomia **auditável** (timeline sem caixa-preta) e as garantias de
-  legalidade/veracidade/segurança intactas. Sem IA, o produto segue completo.
+  legalidade/veracidade/segurança intactas. *(A parte "Sem IA, o produto segue
+  completo" foi superada por [ADR-0012](0012-ai-native-mandatory.md) — sem provedor,
+  o scan é recusado; o determinístico é o substrato que a IA comanda.)*
 - **Escopo v1.0 (honesto):** foco **Web + Infraestrutura**, external e internal,
   com **Agente Recon real**; Web/Cloud/AD/Exploitation e memória de longo prazo /
   attack paths / purple loop ficam **scaffold honesto** (visíveis no `doctor`,
