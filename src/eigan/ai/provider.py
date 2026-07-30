@@ -48,9 +48,11 @@ class AIProvider(ABC):
 
 
 class DeterministicEnricher:
-    """Fallback sem IA: monta explicação e remediação a partir da base de
-    conhecimento (skills) casada por CWE/OWASP. Este é o caminho *default* e o
-    que garante que o produto é 100% utilizável offline."""
+    """Substrato de enriquecimento (resiliência intra-scan + relatório determinístico):
+    monta explicação e remediação a partir da base de conhecimento (skills) casada por
+    CWE/OWASP. **Não** é um "modo sem IA" de produto — o scan exige um provedor
+    (ADR-0012); isto cobre a falha/ausência de IA numa etapa e o caminho determinístico
+    do relatório (exporters/KB)."""
 
     def __init__(self, kb: KnowledgeBase) -> None:
         self._kb = kb

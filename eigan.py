@@ -251,10 +251,10 @@ def _ensure_extra_installed(extra: str) -> None:
 
 
 def _print_ai_hint() -> None:
-    print("\nIA (opcional): defina UMA chave por variável de ambiente e reinicie:")
+    print("\nIA (obrigatória — o EIGAN é um agente de IA): defina UM provedor e reinicie:")
     print("  ANTHROPIC_API_KEY=…   (ou OPENAI_API_KEY / GOOGLE_API_KEY)")
-    print("  OLLAMA_HOST=http://localhost:11434   (modelo local, sem chave)")
-    print("Sem chave, tudo funciona no modo determinístico — a IA só enriquece.\n")
+    print("  OLLAMA_HOST=http://localhost:11434   (local, sem chave e sem custo)")
+    print("Sem um provedor, o scan é recusado. Ollama roda 100% local — nada sai da máquina.\n")
 
 
 # --------------------------------------------------------------------------- #

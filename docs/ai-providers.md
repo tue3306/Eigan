@@ -2,8 +2,10 @@
 
 O EIGAN é **independente de provedor de IA**. Você escolhe o provedor e o modelo
 por variável de ambiente (ou `config/ai.yaml`), e pode adicionar um provedor novo
-sem tocar no resto do código. Tudo é **opcional**: sem provedor, o EIGAN roda 100%
-no modo determinístico (a IA só acrescenta riqueza e autonomia — ADR-0009/0010).
+sem tocar no resto do código. Mas a IA é **obrigatória** (AI-native): sem um provedor
+configurado, o scan é **recusado** com erro acionável ([ADR-0012](adr/0012-ai-native-mandatory.md)).
+Use um provedor de nuvem **ou o Ollama local** (sem chave, sem custo, offline) — o que é
+opcional é *qual* provedor, não *ter* um.
 
 > **Segurança:** chaves vêm **sempre** de variáveis de ambiente / `.env` (fora do
 > git, `chmod 600`), nunca de arquivo versionado. Antes de enviar a um provedor

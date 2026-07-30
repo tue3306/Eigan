@@ -10,8 +10,9 @@ privilégio.
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-Isso sobe a API + dashboard (`eigan serve`) e imprime a URL. Sem chave de IA,
-tudo funciona pelo caminho determinístico.
+Isso sobe a API + dashboard (`eigan serve`) e imprime a URL. Para **escanear** é
+preciso um provedor de IA (o EIGAN é AI-native, [ADR-0012](../docs/adr/0012-ai-native-mandatory.md)):
+use Ollama local (sem chave, sem custo) ou uma chave de nuvem.
 
 ## Arquivos
 

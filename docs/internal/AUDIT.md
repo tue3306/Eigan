@@ -15,7 +15,7 @@ A fundação era sólida e seguia Clean Architecture de fato:
 | Aplicação | `engine/orchestrator.py`, `engine/pipeline.py` | Orquestração por perspectiva; pipeline como grafo de estágios. |
 | Infra | `engine/adapters/*` | 6 adapters reais: nmap, nuclei, naabu, dnsx, subfinder, httpx. |
 | Infra | `findings/store.py` | Persistência SQLite (Repository Pattern). |
-| Infra | `ai/provider.py` | IA opcional com fallback determinístico. |
+| Infra | `ai/provider.py` | IA **obrigatória** (AI-native, ADR-0012); o determinístico é substrato. |
 | Infra | `knowledge/loader.py` | Base de conhecimento (padrão `SKILL.md`). |
 | Infra | `report/deterministic.py` | Relatório HTML→PDF (WeasyPrint opcional). |
 | Interface | `cli/main.py` (click), `api/app.py` (FastAPI) | CLI headless + API REST `/api/v1`. |
