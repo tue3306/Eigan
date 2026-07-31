@@ -142,6 +142,16 @@ class Budget:
     # Teto duro de alvos (ADR-0018): a expansão dirigida por descoberta (subdomínio/
     # IP/host viram novos alvos) NÃO pode explodir. Inclui os alvos originais.
     max_targets: int = 64
+    # Teto de IA (§2.1): interrompe o loop cognitivo graciosamente ao atingir o
+    # consumo acumulado — o piso de segurança contra um loop adaptativo custoso. O
+    # teto de TOKEN é sempre confiável (medido do provedor). O de CUSTO só é aplicado
+    # quando o preço é verificado (`config/ai_pricing.yaml`); sem preço verificado o
+    # custo é UNVERIFIED e o teto de token governa (P1 — nunca estima). A IA é
+    # obrigatória (ADR-0012): há sempre ao menos o plano inicial, e o teto interrompe
+    # as chamadas SEGUINTES ao ser alcançado. None = sem limite. Padrão conservador:
+    # o operador declara o teto por scan (CLI/API).
+    max_ai_tokens: int | None = None
+    max_ai_cost_usd: float | None = None
 
     def __post_init__(self) -> None:
         if self.max_capabilities < 1:
@@ -150,6 +160,10 @@ class Budget:
             raise ValueError("max_wall_seconds deve ser > 0 ou None")
         if self.max_targets < 1:
             raise ValueError("max_targets deve ser >= 1")
+        if self.max_ai_tokens is not None and self.max_ai_tokens < 1:
+            raise ValueError("max_ai_tokens deve ser >= 1 ou None")
+        if self.max_ai_cost_usd is not None and self.max_ai_cost_usd <= 0:
+            raise ValueError("max_ai_cost_usd deve ser > 0 ou None")
 
 
 @dataclass(frozen=True)

@@ -111,6 +111,8 @@ class StopReason(str, Enum):
     NO_NEW_EVIDENCE = "sem nova evidência"
     BUDGET_CAPABILITIES = "limite de capacidades atingido"
     WALL_TIME = "limite de tempo atingido"
+    BUDGET_TOKENS = "limite de tokens de IA atingido"
+    BUDGET_COST = "limite de custo de IA atingido"
     MANUAL = "interrompido"
 
 

@@ -27,6 +27,7 @@ from typing import Optional, Protocol
 from ...findings.dedup import deduplicate
 from ...findings.schema import Finding
 from ...findings.store import FindingStore
+from ...observability.cost import CostModel
 from ...observability.usage import TokenUsage, UsageMeter, use_meter
 from ...perspective import Perspective
 from ...policy.engine import (
@@ -44,7 +45,7 @@ from ..registry import PluginRegistry
 from ..risk import RiskScorer
 from .agent import AgentRegistry
 from .feedback import Feedback, ScanState, StopCondition, StopReason, Suggestion
-from .goal import Goal
+from .goal import Budget, Goal
 from .planner import AgenticPlanner, CompletionPort, DeterministicPlanner, Planner
 from .selection import Prefer, SelectionContext, ToolSelector
 
@@ -212,6 +213,9 @@ class CognitiveEngine:
         # reatribuído a cada run() para isolar scans; a completion metrificada o lê
         # ao vivo. Fica vazio quando não há IA (sem provedor → sem tokens).
         self._scan_meter = UsageMeter()
+        # Modelo de custo (§2.1): preços verificados pelo operador (ou vazio → custo
+        # UNVERIFIED). Alimenta o teto de custo de IA; o teto de token é o piso confiável.
+        self._cost_model = CostModel.from_config()
         base = DeterministicPlanner(self._registry, self._graph)
         if planner is not None:
             self._planner: Planner = planner
@@ -359,6 +363,14 @@ class CognitiveEngine:
             budget_hit = stop.check(state)
             if budget_hit is not None:
                 stop_reason = budget_hit
+                break
+
+            # Teto de IA (§2.1): antes de qualquer nova onda (execução + replan, que é
+            # a próxima chamada de IA), verifica o consumo acumulado e encerra em paz.
+            ai_budget_hit = self._ai_budget_stop(goal.budget)
+            if ai_budget_hit is not None:
+                stop_reason = ai_budget_hit
+                emitter.emit(ev.log(f"[orçamento-IA] encerrando o scan: {ai_budget_hit.value}"))
                 break
 
             step = plan.pop_next()
@@ -741,6 +753,31 @@ class CognitiveEngine:
             ai_calls=ai_calls,
             token_usage_by_model=by_model,
         )
+
+    def _ai_budget_stop(self, budget: Budget) -> Optional[StopReason]:
+        """Teto de IA (§2.1): encerra o loop ao atingir tokens/custo acumulados.
+
+        O teto de TOKEN é sempre confiável (medido do provedor). O de CUSTO só é
+        aplicado quando TODAS as chamadas têm preço verificado (``config/ai_pricing.yaml``);
+        senão o custo total é UNVERIFIED e o teto de token é o piso (P1 — nunca estima)."""
+        if budget.max_ai_tokens is not None:
+            if self._scan_meter.total().total_tokens >= budget.max_ai_tokens:
+                return StopReason.BUDGET_TOKENS
+        if budget.max_ai_cost_usd is not None:
+            cost = self._verified_cost_usd()
+            if cost is not None and cost >= budget.max_ai_cost_usd:
+                return StopReason.BUDGET_COST
+        return None
+
+    def _verified_cost_usd(self) -> Optional[float]:
+        """Custo total só quando TODAS as chamadas têm preço verificado; senão None."""
+        total = 0.0
+        for usage_event in self._scan_meter.events:
+            estimate = self._cost_model.cost_for(usage_event.model, usage_event.usage)
+            if estimate is None:
+                return None
+            total += estimate.amount
+        return total
 
     def _base_context(self, goal: Goal) -> SelectionContext:
         prefer = _PREFER_BY_PROFILE.get(goal.profile, Prefer.BALANCED)
