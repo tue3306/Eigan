@@ -344,7 +344,15 @@ class AnthropicProvider(_HTTPProvider):
             payload={
                 "model": self._model,
                 "max_tokens": _max_tokens(),
-                "system": system,
+                # Prompt caching (§2.2): o system prompt é o prefixo ESTÁVEL (regras de
+                # grounding, catálogo de capacidades) reenviado a cada onda — marcá-lo
+                # como cacheável (ephemeral) corta o custo dos tokens repetidos. Prompt
+                # abaixo do mínimo do provedor simplesmente não é cacheado (sem erro).
+                # Só a Anthropic recebe o marcador aqui; a porta CompletionPort segue
+                # genérica (os demais provedores ignoram / cacheiam prefixo sozinhos).
+                "system": [
+                    {"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}
+                ],
                 "messages": [{"role": "user", "content": user}],
             },
         )

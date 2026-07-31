@@ -29,10 +29,15 @@ def _nonneg_int(value: object) -> int:
 
 @dataclass(frozen=True)
 class TokenUsage:
-    """Tokens de entrada (prompt) e saída (completion) de uma ou mais chamadas."""
+    """Tokens de entrada (prompt) e saída (completion) de uma ou mais chamadas.
+
+    ``prompt_tokens`` é o total de entrada (inclui os tokens servidos do cache).
+    ``cache_read_tokens`` é o subconjunto servido do **prompt cache** (§2.2) — mais
+    barato; é a economia medida, exposta na observabilidade sem alterar o total."""
 
     prompt_tokens: int = 0
     completion_tokens: int = 0
+    cache_read_tokens: int = 0
 
     @property
     def total_tokens(self) -> int:
@@ -42,6 +47,7 @@ class TokenUsage:
         return TokenUsage(
             self.prompt_tokens + other.prompt_tokens,
             self.completion_tokens + other.completion_tokens,
+            self.cache_read_tokens + other.cache_read_tokens,
         )
 
     def as_dict(self) -> dict[str, int]:
@@ -49,6 +55,7 @@ class TokenUsage:
             "prompt_tokens": self.prompt_tokens,
             "completion_tokens": self.completion_tokens,
             "total_tokens": self.total_tokens,
+            "cache_read_tokens": self.cache_read_tokens,
         }
 
 
@@ -73,14 +80,25 @@ def extract_usage(raw: object) -> TokenUsage | None:
     usage = raw.get("usage")
     if isinstance(usage, dict):
         if "prompt_tokens" in usage or "completion_tokens" in usage:  # OpenAI-compat
+            # OpenAI já inclui os tokens cacheados em prompt_tokens; cached_tokens é o
+            # subconjunto servido do cache de prefixo (§2.2) — a economia medida.
+            details = usage.get("prompt_tokens_details")
+            cached = _nonneg_int(details.get("cached_tokens")) if isinstance(details, dict) else 0
             return TokenUsage(
                 _nonneg_int(usage.get("prompt_tokens")),
                 _nonneg_int(usage.get("completion_tokens")),
+                cache_read_tokens=cached,
             )
         if "input_tokens" in usage or "output_tokens" in usage:  # Anthropic
+            # Com prompt caching (§2.2), input_tokens é a parte NÃO cacheada; leitura e
+            # criação de cache vêm em campos próprios. prompt_tokens normaliza para o
+            # total de entrada; cache_read_tokens é a economia medida.
+            cache_read = _nonneg_int(usage.get("cache_read_input_tokens"))
+            cache_write = _nonneg_int(usage.get("cache_creation_input_tokens"))
             return TokenUsage(
-                _nonneg_int(usage.get("input_tokens")),
+                _nonneg_int(usage.get("input_tokens")) + cache_read + cache_write,
                 _nonneg_int(usage.get("output_tokens")),
+                cache_read_tokens=cache_read,
             )
 
     meta = raw.get("usageMetadata")  # Google Gemini

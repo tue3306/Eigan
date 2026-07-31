@@ -45,6 +45,37 @@ def test_extract_usage_ollama_shape():
     assert extract_usage({"prompt_eval_count": 8, "eval_count": 9}) == TokenUsage(8, 9)
 
 
+def test_extract_usage_openai_cached_tokens():
+    # OpenAI: prompt_tokens já é o total; cached_tokens é o subconjunto do cache (§2.2).
+    u = extract_usage(
+        {
+            "usage": {
+                "prompt_tokens": 100,
+                "completion_tokens": 10,
+                "prompt_tokens_details": {"cached_tokens": 80},
+            }
+        }
+    )
+    assert u == TokenUsage(100, 10, cache_read_tokens=80)
+    assert u is not None and u.total_tokens == 110  # cache é subconjunto do prompt
+
+
+def test_extract_usage_anthropic_prompt_cache():
+    # Anthropic: input_tokens é a parte NÃO cacheada; leitura/criação vêm à parte (§2.2).
+    u = extract_usage(
+        {
+            "usage": {
+                "input_tokens": 20,
+                "output_tokens": 8,
+                "cache_read_input_tokens": 200,
+                "cache_creation_input_tokens": 50,
+            }
+        }
+    )
+    # prompt_tokens normaliza para o total de entrada (20+200+50); cache_read = 200.
+    assert u == TokenUsage(270, 8, cache_read_tokens=200)
+
+
 def test_extract_usage_returns_none_when_unknown():
     # Sem bloco de uso conhecido → None. NUNCA inventa um número (§2/§3.1).
     assert extract_usage({"choices": [{"message": {"content": "x"}}]}) is None
@@ -56,9 +87,14 @@ def test_extract_usage_returns_none_when_unknown():
 # TokenUsage
 # --------------------------------------------------------------------------- #
 def test_token_usage_add_and_dict():
-    total = TokenUsage(1, 2) + TokenUsage(10, 20)
-    assert total == TokenUsage(11, 22)
-    assert total.as_dict() == {"prompt_tokens": 11, "completion_tokens": 22, "total_tokens": 33}
+    total = TokenUsage(1, 2, 1) + TokenUsage(10, 20, 4)
+    assert total == TokenUsage(11, 22, 5)
+    assert total.as_dict() == {
+        "prompt_tokens": 11,
+        "completion_tokens": 22,
+        "total_tokens": 33,
+        "cache_read_tokens": 5,
+    }
 
 
 # --------------------------------------------------------------------------- #

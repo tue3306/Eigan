@@ -266,6 +266,25 @@ def test_anthropic_roundtrip_and_grounding():
     assert captured["body"]["model"] == "claude-opus-4-8"
 
 
+def test_anthropic_marks_system_prompt_cacheable():
+    # Prompt caching (§2.2): o system (prefixo estável) vai como bloco com
+    # cache_control ephemeral — corta o custo dos tokens repetidos entre ondas.
+    httpx = pytest.importorskip("httpx")
+    captured = {}
+
+    def handler(request):
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(200, json={"content": [{"type": "text", "text": "ok"}]})
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    provider = AnthropicProvider(model="claude-opus-4-8", credential="k", client=client)
+    provider.complete("SYSTEM ESTAVEL", "user variavel")
+    system = captured["body"]["system"]
+    assert isinstance(system, list)
+    assert system[0]["text"] == "SYSTEM ESTAVEL"
+    assert system[0]["cache_control"] == {"type": "ephemeral"}
+
+
 def test_external_provider_redacts_before_send():
     httpx = pytest.importorskip("httpx")
     captured = {}
