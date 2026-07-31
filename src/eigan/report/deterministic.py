@@ -199,7 +199,7 @@ class ReportGenerator:
         ctx.update(
             {
                 "findings": findings,
-                "enrichment": [self._enricher.explain(f) for f in findings],
+                "enrichment": self._enricher.explain_all(findings),
                 "executive_summary": executive_summary,
                 "executive_ai": ai,
                 "inventory": inventory,

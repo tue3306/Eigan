@@ -82,6 +82,16 @@ class DeterministicEnricher:
         return Explanation(text=text, remediation=remediation, ai_generated=False)
 
 
+def _class_key(finding: Finding) -> str:
+    """Chave de CLASSE de vulnerabilidade — ignora o ativo, para a dedup semântica
+    antes da IA (§2.4). Prefere CWE > OWASP > título normalizado."""
+    if finding.cwe:
+        return f"cwe:{finding.cwe}"
+    if finding.owasp:
+        return f"owasp:{finding.owasp}"
+    return f"title:{finding.title.strip().lower()}"
+
+
 class Enricher:
     """Fachada: usa IA se disponível, senão cai para o determinístico.
 
@@ -107,6 +117,23 @@ class Enricher:
             return self._provider.explain(finding, context)
         except Exception:  # noqa: BLE001 — qualquer falha de IA cai para determinístico
             return self._fallback.explain(finding)
+
+    def explain_all(self, findings: list[Finding]) -> list[Explanation]:
+        """Dedup semântica antes da IA (§2.4): agrupa findings equivalentes (mesma
+        classe — CWE/OWASP/título) e analisa **um representante** por grupo, propagando
+        a explicação ao grupo. O custo cresce com o número de CLASSES, não de instâncias
+        (50 'TLS fraco' → 1 chamada, não 50). Cada finding preserva o seu ativo no
+        relatório; a narrativa/remediação é de classe. Mantém a ordem de entrada."""
+        by_class: dict[str, Explanation] = {}
+        result: list[Explanation] = []
+        for finding in findings:
+            key = _class_key(finding)
+            explanation = by_class.get(key)
+            if explanation is None:
+                explanation = self.explain(finding)
+                by_class[key] = explanation
+            result.append(explanation)
+        return result
 
 
 # --------------------------------------------------------------------------- #
