@@ -21,6 +21,7 @@ from typing import Any
 
 from ..findings.schema import Finding
 from ..knowledge.loader import KnowledgeBase
+from .cache import ResponseCache
 
 
 @dataclass
@@ -218,6 +219,13 @@ def redact(text: str) -> str:
     return out
 
 
+def _ai_cache_path() -> str | None:
+    """Cache de resposta persistente (§2.3) se ``EIGAN_AI_CACHE_DIR`` estiver
+    definido; senão None (cache só em memória, dentro do scan)."""
+    d = os.getenv("EIGAN_AI_CACHE_DIR")
+    return str(Path(d) / "ai_response_cache.json") if d else None
+
+
 def _build_prompts(finding: Finding, context: str) -> tuple[str, str]:
     lines = [
         f"Título: {finding.title}",
@@ -262,12 +270,17 @@ class _HTTPProvider(AIProvider):
         redact_external: bool = True,
         timeout: float = _TIMEOUT,
         client: Any = None,
+        cache: ResponseCache | None = None,
     ) -> None:
         self._model = model
         self._credential = credential
         self._redact_external = redact_external
         self._timeout = timeout
         self._client = client  # injetável para teste (httpx.Client com MockTransport)
+        # Cache de resposta por conteúdo (§2.3): None = sem cache. Reduz dupla análise
+        # do mesmo (finding, contexto, modelo) na mesma execução (e entre scans se
+        # persistente). Só o `explain` o usa (o Planner tem retry, não cacheado).
+        self._cache = cache
 
     def available(self) -> bool:
         return bool(self._credential and self._model)
@@ -276,7 +289,7 @@ class _HTTPProvider(AIProvider):
         system, user = _build_prompts(finding, context)
         if self._redact_external:
             user = redact(user)
-        return _parse_explanation(self._complete(system, user), finding)
+        return _parse_explanation(self._cached_complete(system, user), finding)
 
     def complete(self, system: str, user: str, *, json_mode: bool = False) -> str:
         """Completamento de texto genérico — porta para o Planner cognitivo
@@ -288,6 +301,22 @@ class _HTTPProvider(AIProvider):
         emitem JSON malformado (aspa faltando) e o Planner caía no determinístico."""
         redacted = redact(user) if self._redact_external else user
         return self._complete(system, redacted, json_mode=json_mode)
+
+    def _cached_complete(self, system: str, user: str, *, json_mode: bool = False) -> str:
+        """Cache de resposta (§2.3) para a análise de finding (``explain``). O Planner
+        (``complete``) NÃO é cacheado: seu retry depende de o modelo poder devolver
+        uma saída diferente/válida na 2ª tentativa. ``user`` já vem redigido; grava a
+        resposta **já redigida** (P8) — a chave é hash, o prompt não vai em claro."""
+        cache = self._cache
+        if cache is None:
+            return self._complete(system, user, json_mode=json_mode)
+        key = cache.key(system=system, user=user, model=self._model, json_mode=json_mode)
+        hit = cache.get(key)
+        if hit is not None:
+            return hit
+        out = self._complete(system, user, json_mode=json_mode)
+        cache.put(key, redact(out) if self._redact_external else out)
+        return out
 
     def probe(self) -> tuple[bool, str]:
         """Faz uma completude mínima real para provar que a IA responde (custa
@@ -632,6 +661,7 @@ class ProviderSpec:
             "redact_external": self.external,
             "timeout": self._timeout(),
             "client": client,
+            "cache": ResponseCache(path=_ai_cache_path()),
         }
         if self.base_url_env is not None:
             kwargs["base_url"] = os.getenv(self.base_url_env) or self.default_base_url
