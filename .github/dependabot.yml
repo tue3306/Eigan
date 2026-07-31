@@ -1,0 +1,37 @@
+# Dependabot — atualizações automáticas de dependências (TIER 1.3).
+#
+# Cobre os TRÊS ecossistemas do projeto: pip (Python), github-actions e docker.
+# Agrupa patch/minor (menos ruído) e deixa major em PR próprio (breaking change →
+# revisão dedicada). Ao fixar as Actions por SHA (segurança de cadeia de suprimentos),
+# o Dependabot mantém os SHAs atualizados automaticamente.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      python-patch-minor:
+        update-types: ["patch", "minor"]
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      actions-patch-minor:
+        update-types: ["patch", "minor"]
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "docker"
