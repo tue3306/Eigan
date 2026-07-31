@@ -83,6 +83,20 @@ def cli(ctx: click.Context) -> None:
     default=None,
     help="Sai !=0 se houver finding >= esta severidade (gate de CI).",
 )
+@click.option(
+    "--max-tokens",
+    "max_tokens",
+    type=click.IntRange(min=1),
+    default=None,
+    help="Teto de tokens de IA do scan (§2.1): ao atingir, o scan encerra em paz.",
+)
+@click.option(
+    "--max-cost",
+    "max_cost",
+    type=click.FloatRange(min=0, min_open=True),
+    default=None,
+    help="Teto de custo de IA em USD (só com preço verificado; senão use --max-tokens).",
+)
 def scan(
     targets,
     target_list,
@@ -94,6 +108,8 @@ def scan(
     online_enrich,
     override_perspective,
     fail_on,
+    max_tokens,
+    max_cost,
 ):
     """Executa um scan contra ALVOS autorizados (ex.: `eigan scan example.com`)."""
     tlist = list(targets)
@@ -115,6 +131,8 @@ def scan(
             assume_yes=yes,
             override_perspective=override_perspective,
             online_enrich=online_enrich,
+            max_ai_tokens=max_tokens,
+            max_ai_cost_usd=max_cost,
             progress=lambda m: click.echo(f"  {m}"),
         )
     except SessionAborted as exc:

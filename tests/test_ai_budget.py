@@ -75,3 +75,14 @@ def test_scan_stops_gracefully_when_token_ceiling_reached() -> None:
     assert report.stop_reason is StopReason.BUDGET_TOKENS
     # nenhuma chamada além do plano inicial que estourou o teto minúsculo.
     assert report.token_usage.total_tokens == 42
+
+
+def test_session_budget_helper() -> None:
+    """A CLI/wizard traduz --max-tokens/--max-cost em Budget (§2.1)."""
+    from eigan.cli.session import _budget
+
+    assert _budget(None, None) is None  # sem teto → default do Goal
+    b = _budget(500, None)
+    assert b is not None and b.max_ai_tokens == 500 and b.max_ai_cost_usd is None
+    b2 = _budget(None, 1.5)
+    assert b2 is not None and b2.max_ai_cost_usd == 1.5

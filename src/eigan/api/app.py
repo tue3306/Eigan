@@ -701,6 +701,9 @@ class ScanRequest(BaseModel):
     use_ai: bool = True
     authorized: bool = False
     override_perspective: bool = False
+    # Teto de IA do scan (§2.1): ao atingir, o scan encerra em paz. None = sem limite.
+    max_ai_tokens: int | None = Field(default=None, ge=1)
+    max_ai_cost_usd: float | None = Field(default=None, gt=0)
 
 
 @app.post("/api/v1/scans", status_code=202)
@@ -730,6 +733,8 @@ def start_scan(req: ScanRequest, request: Request) -> dict:
             authorized=req.authorized,
             use_ai=req.use_ai,
             override_perspective=req.override_perspective,
+            max_ai_tokens=req.max_ai_tokens,
+            max_ai_cost_usd=req.max_ai_cost_usd,
         )
     except PermissionError as exc:
         raise HTTPException(403, str(exc)) from exc

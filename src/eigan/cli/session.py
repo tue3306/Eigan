@@ -10,7 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, cast
 
-from ..engine.cognitive import CognitiveEngine, CognitiveReport, DecisionEntry, Goal, GoalKind
+from ..engine.cognitive import (
+    Budget,
+    CognitiveEngine,
+    CognitiveReport,
+    DecisionEntry,
+    Goal,
+    GoalKind,
+)
 
 if TYPE_CHECKING:
     from ..engine.cognitive import CompletionPort
@@ -107,6 +114,13 @@ class PlanOutcome:
     suggestions: list = field(default_factory=list)
 
 
+def _budget(max_ai_tokens: int | None, max_ai_cost_usd: float | None) -> Budget | None:
+    """Budget com o teto de IA declarado (§2.1); None → usa o default do Goal."""
+    if max_ai_tokens is None and max_ai_cost_usd is None:
+        return None
+    return Budget(max_ai_tokens=max_ai_tokens, max_ai_cost_usd=max_ai_cost_usd)
+
+
 def plan_scan(
     *,
     goal_kind: GoalKind,
@@ -120,6 +134,8 @@ def plan_scan(
     online_enrich: bool,
     dry_run: bool,
     use_ai: bool,
+    max_ai_tokens: int | None = None,
+    max_ai_cost_usd: float | None = None,
     input_fn=input,
     echo=print,
 ) -> PlanOutcome:
@@ -129,7 +145,13 @@ def plan_scan(
     não passa pelo consent gate. A execução real exige termo + escopo + consent,
     exatamente como :func:`execute_scan`.
     """
-    goal = Goal.build(goal_kind, targets, perspective=perspective, profile=profile)
+    goal = Goal.build(
+        goal_kind,
+        targets,
+        perspective=perspective,
+        profile=profile,
+        budget=_budget(max_ai_tokens, max_ai_cost_usd),
+    )
     registry = PluginRegistry.discover()
 
     if dry_run:
@@ -205,6 +227,8 @@ def execute_scan(
     assume_yes: bool,
     override_perspective: bool,
     online_enrich: bool,
+    max_ai_tokens: int | None = None,
+    max_ai_cost_usd: float | None = None,
     progress=None,
     input_fn=input,
     echo=print,
@@ -228,7 +252,13 @@ def execute_scan(
     # O objetivo resolve a perspectiva default (FULL_ASSESSMENT → UNIFIED, modo
     # produto); --perspective explícito sobrepõe. O guardrail de escopo é
     # revalidado por alvo dentro do engine (defesa em profundidade).
-    goal = Goal.build(goal_kind, targets, perspective=perspective, profile=profile)
+    goal = Goal.build(
+        goal_kind,
+        targets,
+        perspective=perspective,
+        profile=profile,
+        budget=_budget(max_ai_tokens, max_ai_cost_usd),
+    )
     scope = build_scope(scope_path, targets, goal.perspective)
     try:
         ConsentGate(scope.engagement, targets).require(assume_yes=assume_yes, input_fn=input_fn)

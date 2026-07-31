@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 from ..engine import events as ev
 from ..engine.bus import EventBus
-from ..engine.cognitive import CognitiveEngine, Goal, GoalKind
+from ..engine.cognitive import Budget, CognitiveEngine, Goal, GoalKind
 from ..engine.feeds import FeedCache
 from ..engine.registry import PluginRegistry
 from ..engine.risk import RiskScorer
@@ -162,6 +162,8 @@ class ScanManager:
         authorized: bool,
         use_ai: bool = False,
         override_perspective: bool = False,
+        max_ai_tokens: int | None = None,
+        max_ai_cost_usd: float | None = None,
     ) -> ScanJob:
         """Cria e inicia um job. ``authorized`` é o consent gate — obrigatório."""
         if not authorized:
@@ -195,9 +197,14 @@ class ScanManager:
         )
         self._jobs[job_id] = job
 
+        budget = (
+            Budget(max_ai_tokens=max_ai_tokens, max_ai_cost_usd=max_ai_cost_usd)
+            if (max_ai_tokens is not None or max_ai_cost_usd is not None)
+            else None
+        )
         thread = threading.Thread(
             target=self._run,
-            args=(job, persp, profile, override_perspective),
+            args=(job, persp, profile, override_perspective, budget),
             name=f"scan-{job_id}",
             daemon=True,
         )
@@ -212,7 +219,14 @@ class ScanManager:
         return True
 
     # ── execução ────────────────────────────────────────────────────────────
-    def _run(self, job: ScanJob, perspective: Perspective, profile: str, override: bool) -> None:
+    def _run(
+        self,
+        job: ScanJob,
+        perspective: Perspective,
+        profile: str,
+        override: bool,
+        budget: Budget | None = None,
+    ) -> None:
         job.status = "running"
         # Event bus (§9/§13): o engine publica uma vez; o bus distribui. As métricas
         # assinam PRIMEIRO (observam mesmo se o scan abortar); o sink do job (que
@@ -262,6 +276,7 @@ class ScanManager:
                 job.targets,
                 perspective=perspective,
                 profile=profile,
+                budget=budget,
             )
             for t in job.targets:  # falha rápida se um alvo é totalmente não autorizado
                 scope.enforce(t, perspective=perspective, override=override)

@@ -56,6 +56,30 @@ def test_scan_requires_authorization(client):
     assert r.status_code == 403  # consent gate preservado
 
 
+def test_scan_accepts_ai_budget_field(client):
+    # §2.1: o teto de IA (max_ai_tokens) é aceito e flui para o Budget do scan.
+    r = client.post(
+        "/api/v1/scans",
+        json={
+            "targets": ["example.com"],
+            "perspective": "external",
+            "objective": "quick",
+            "authorized": True,
+            "max_ai_tokens": 100,
+        },
+    )
+    assert r.status_code == 202
+
+
+def test_scan_rejects_invalid_ai_budget(client):
+    # max_ai_tokens < 1 é rejeitado pela validação do modelo (422), não silenciosamente.
+    r = client.post(
+        "/api/v1/scans",
+        json={"targets": ["example.com"], "authorized": True, "max_ai_tokens": 0},
+    )
+    assert r.status_code == 422
+
+
 def test_scan_requires_ai_provider(client, monkeypatch):
     # AI-native (§3.4/ADR-0012): sem provedor, o scan é recusado com 428 acionável.
     for k in (
