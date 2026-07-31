@@ -72,3 +72,23 @@ ignore_missing_imports = true
 # por isso os avisos B603/B404 são esperados e seguros, não silenciados às cegas.
 # Achados MÉDIOS têm `# nosec <ID>` com justificativa inline no ponto de uso.
 exclude_dirs = ["tests", ".venv", "build", "dist"]
+
+[tool.coverage.run]
+source = ["eigan"]
+
+[tool.coverage.report]
+# Gate de cobertura (§1.2). Piso CONSERVADOR: abaixo do valor medido (~82-83% na
+# suíte completa) para não quebrar o build no dia 1 — a CI (Ubuntu/3.11, suíte verde)
+# é a medida autoritativa. Sobe deliberadamente conforme os TIERs adicionam testes;
+# código novo em PR deve vir ≥ 90%. (Rodar `pytest` de um subconjunto com `--cov`
+# dispara este piso: use a suíte completa, como na CI, ou omita `--cov`.)
+fail_under = 80
+show_missing = true
+precision = 1
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "@(abc\\.)?abstractmethod",
+]
