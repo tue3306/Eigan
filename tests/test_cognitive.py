@@ -428,7 +428,7 @@ def test_engine_runs_recon_end_to_end():
     # capacidades sem plugin viram sugestão/scaffold, nunca fingem rodar.
     assert "suggested" in actions
     assert report.stop_reason in (StopReason.PLAN_EXHAUSTED, StopReason.NO_NEW_EVIDENCE)
-    assert report.ai_used is False  # substrato: sem CompletionPort, usa o DeterministicPlanner (piso)
+    assert report.ai_used is False  # substrato determinístico (sem CompletionPort)
 
 
 def test_engine_plan_only_does_not_execute():
