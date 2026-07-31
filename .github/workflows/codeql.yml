@@ -1,0 +1,33 @@
+# CodeQL — análise estática de segurança do próprio código (TIER 1.1).
+# Roda em push/PR para main e semanalmente; resultados na aba Security do repo.
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "27 3 * * 1" # segunda-feira ~03:27 UTC (varredura semanal)
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: CodeQL (python)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # publicar alertas na aba Security
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inicializa CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-and-quality
+      - name: Analisa
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"

@@ -1,0 +1,62 @@
+# Segurança do próprio produto (TIER 1.1): SAST + análise de composição (SCA) +
+# varredura de segredos. "Eat your own dog food" — a ferramenta de segurança
+# audita o próprio código a cada PR.
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "27 3 * * 1" # varredura semanal
+
+permissions:
+  contents: read
+
+jobs:
+  # Bloqueantes: calibrados localmente para passar hoje (bandit medium+ limpo com
+  # nosec justificados; pip-audit sem vulnerabilidades). Alto/crítico bloqueia merge.
+  sast-sca:
+    name: bandit + pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar
+        run: pip install -e ".[dev]" bandit pip-audit
+      - name: Bandit (SAST — severidade média+)
+        run: bandit -c pyproject.toml -r src plugins --severity-level medium
+      - name: pip-audit (SCA — OSV/PyPI Advisory DB)
+        run: pip-audit
+
+  # Aviso (continue-on-error) → bloqueante depois de zerar/afinar (§1.1).
+  # semgrep e gitleaks ainda não foram calibrados contra falsos-positivos (ex.:
+  # fixtures de teste do plugin `exposure` com segredos-EXEMPLO). Ao afinar um
+  # allowlist (.gitleaks.toml) e revisar os achados do semgrep, remover o
+  # continue-on-error e torná-los bloqueantes.
+  semgrep:
+    name: semgrep (SAST — aviso)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install semgrep
+      - name: Semgrep (p/python, security-audit, secrets)
+        run: semgrep --config p/python --config p/security-audit --config p/secrets --error src plugins
+
+  gitleaks:
+    name: gitleaks (segredos — aviso)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # histórico completo para varrer segredos em todos os commits
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
