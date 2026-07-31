@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..findings.schema import Finding
+from ..findings.schema import Finding, Severity
 from ..knowledge.loader import KnowledgeBase
 from .cache import ResponseCache
 
@@ -92,6 +92,21 @@ def _class_key(finding: Finding) -> str:
     return f"title:{finding.title.strip().lower()}"
 
 
+def _triage_min_severity() -> Severity:
+    """Severidade mínima para análise PROFUNDA por IA (§2.5). Abaixo dela, a triagem
+    barata usa o enriquecimento determinístico (zero token). Default ``low`` (só INFO
+    fica breve); ``info`` manda tudo ao modelo caro; ``high`` é a economia agressiva.
+
+    Teto de segurança: o limiar NUNCA sobe acima de HIGH — findings de severidade
+    alta/crítica sempre vão a análise profunda (nunca desprioriza em silêncio, §P9)."""
+    raw = (os.getenv("EIGAN_TRIAGE_MIN_SEVERITY") or "low").strip().lower()
+    try:
+        sev = Severity(raw)
+    except ValueError:
+        sev = Severity.LOW
+    return sev if sev.rank <= Severity.HIGH.rank else Severity.HIGH
+
+
 class Enricher:
     """Fachada: usa IA se disponível, senão cai para o determinístico.
 
@@ -119,21 +134,31 @@ class Enricher:
             return self._fallback.explain(finding)
 
     def explain_all(self, findings: list[Finding]) -> list[Explanation]:
-        """Dedup semântica antes da IA (§2.4): agrupa findings equivalentes (mesma
-        classe — CWE/OWASP/título) e analisa **um representante** por grupo, propagando
-        a explicação ao grupo. O custo cresce com o número de CLASSES, não de instâncias
-        (50 'TLS fraco' → 1 chamada, não 50). Cada finding preserva o seu ativo no
-        relatório; a narrativa/remediação é de classe. Mantém a ordem de entrada."""
-        by_class: dict[str, Explanation] = {}
-        result: list[Explanation] = []
+        """Dedup semântica (§2.4) + triagem barata→cara (§2.5), mantendo a ordem.
+
+        Agrupa por CLASSE (§2.4) e, por grupo, a triagem decide **DEEP** (narrativa por
+        IA, cara) ou **BRIEF** (enriquecimento determinístico, barato) pela severidade
+        MÁXIMA do grupo vs. :func:`_triage_min_severity`. O custo cresce com o número de
+        classes RELEVANTES, não de instâncias. Regras de segurança (§P9): nada é
+        descartado — BRIEF ainda recebe explicação; alto/crítico SEMPRE vai a DEEP; a
+        escolha é auditável (``Explanation.ai_generated`` indica se a IA foi usada)."""
+        groups: dict[str, list[Finding]] = {}
+        order: list[str] = []
         for finding in findings:
             key = _class_key(finding)
-            explanation = by_class.get(key)
-            if explanation is None:
-                explanation = self.explain(finding)
-                by_class[key] = explanation
-            result.append(explanation)
-        return result
+            if key not in groups:
+                groups[key] = []
+                order.append(key)
+            groups[key].append(finding)
+
+        min_rank = _triage_min_severity().rank
+        by_class: dict[str, Explanation] = {}
+        for key in order:
+            group = groups[key]
+            deep = self._provider is not None and max(f.severity.rank for f in group) >= min_rank
+            # DEEP: narrativa por IA (self.explain). BRIEF: determinístico (barato).
+            by_class[key] = self.explain(group[0]) if deep else self._fallback.explain(group[0])
+        return [by_class[_class_key(f)] for f in findings]
 
 
 # --------------------------------------------------------------------------- #
