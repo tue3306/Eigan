@@ -537,7 +537,7 @@ def _secho_adapter(echo: Callable) -> Callable:
 # Dashboard: sobe uvicorn e abre o navegador quando a porta responde.
 # --------------------------------------------------------------------------- #
 def _open_when_ready(host: str, port: int, url: str, timeout: float = 12.0) -> None:
-    connect_host = "127.0.0.1" if host in ("", "0.0.0.0") else host
+    connect_host = "127.0.0.1" if host in ("", "0.0.0.0") else host  # nosec B104 — alvo de conexão do healthcheck, não um bind
 
     def _wait_and_open() -> None:
         deadline = time.monotonic() + timeout

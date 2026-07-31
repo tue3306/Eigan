@@ -612,7 +612,7 @@ def serve(host, port, db, expose, open_browser):
     from .menu import serve_app
 
     if expose and host in ("127.0.0.1", "localhost", "::1"):
-        host = "0.0.0.0"
+        host = "0.0.0.0"  # nosec B104 — só com --expose explícito; a API então exige token (ADR-0014)
     if open_browser is None:
         open_browser = sys.stdout.isatty()
     serve_app(host=host, port=port, db=db, open_browser=open_browser, echo=click.echo)

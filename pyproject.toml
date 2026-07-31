@@ -63,3 +63,12 @@ select = ["E4", "E7", "E9", "F", "I"]
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true
+
+[tool.bandit]
+# SAST do próprio código (TIER 1.1). O gate de CI roda em severidade MÉDIA+
+# (`bandit --severity-level medium`): achados LOW são informativos e não bloqueiam.
+# Padrão seguro de subprocess (B603/B404, LOW): toda execução externa usa LISTA de
+# argumentos e NUNCA `shell=True` (`engine/base.py` é a única porta de subprocess) —
+# por isso os avisos B603/B404 são esperados e seguros, não silenciados às cegas.
+# Achados MÉDIOS têm `# nosec <ID>` com justificativa inline no ponto de uso.
+exclude_dirs = ["tests", ".venv", "build", "dist"]

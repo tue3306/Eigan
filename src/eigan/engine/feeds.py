@@ -45,7 +45,7 @@ def _http_get(url: str, timeout: int = 30) -> bytes:
     if not url.lower().startswith("https://"):
         raise ValueError(f"URL de feed deve ser HTTPS: {url!r}")
     req = urllib.request.Request(url, headers={"User-Agent": "EIGAN/feeds"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 (esquema validado)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310 — esquema validado a HTTPS acima
         return resp.read()
 
 

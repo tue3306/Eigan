@@ -56,7 +56,9 @@ def parse(result: ToolResult, target: str) -> list[Finding]:
     if not result.stdout.strip():
         return []
     try:
-        root = ET.fromstring(result.stdout)
+        # Entrada = XML do nosso `nmap -oX` (subprocess controlado, sem shell). O
+        # hardening com defusedxml está planejado no TIER 7.2 (fuzzing de parsers).
+        root = ET.fromstring(result.stdout)  # nosec B314
     except ET.ParseError:
         return []
 
