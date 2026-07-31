@@ -401,6 +401,30 @@ def plan(
     if outcome.suggestions:
         tools = ", ".join(s.tool for s in outcome.suggestions)
         click.secho(f"Sugeridas (não executadas): {tools}", fg="yellow")
+    if outcome.estimate is not None:
+        est = outcome.estimate
+        click.secho("\nEstimativa de orçamento de IA (§2.6):", fg="cyan")
+        click.echo(f"  · capacidades no plano: {est.capabilities}")
+        click.echo(
+            f"  · chamadas de planejamento: {est.planning_calls_min}–{est.planning_calls_max} "
+            "(plano inicial + replan por onda)"
+        )
+        click.echo(
+            f"  · teto de tokens de saída (planejamento): ~{est.total_output_tokens_max} "
+            f"({est.max_output_tokens_per_call}/chamada)"
+        )
+        click.echo(
+            "  · enriquecimento: +1 chamada por CLASSE de finding encontrada "
+            "(desconhecido antes do scan)"
+        )
+        if est.cost_max is not None:
+            click.echo(
+                f"  · custo (tokens de saída no teto): ~{est.cost_max.amount} "
+                f"{est.cost_max.currency} — entrada/enriquecimento adicionais"
+            )
+        else:
+            click.echo("  · custo: UNVERIFIED (sem preço confirmado; estimativa em tokens — P1)")
+        click.echo("  · limite o gasto com --max-tokens / --max-cost (§2.1).")
     if dry_run:
         click.echo("\nPara executar de verdade: repita com --execute (exige autorização).")
 

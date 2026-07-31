@@ -278,6 +278,16 @@ def _ai_cache_path() -> str | None:
     return str(Path(d) / "ai_response_cache.json") if d else None
 
 
+def active_model() -> str | None:
+    """Modelo que o provedor ativo usaria (para a estimativa de custo do §2.6), ou
+    None se nenhum provedor está configurado. Best-effort — nunca levanta."""
+    try:
+        provider = default_provider()
+    except Exception:  # noqa: BLE001 — estimativa nunca derruba o comando
+        return None
+    return getattr(provider, "_model", None)
+
+
 def _build_prompts(finding: Finding, context: str) -> tuple[str, str]:
     lines = [
         f"Título: {finding.title}",

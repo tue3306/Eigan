@@ -78,3 +78,47 @@ class CostModel:
             verified=True,
             source=str(entry.get("source", "")),
         )
+
+
+@dataclass(frozen=True)
+class ScanCostEstimate:
+    """Estimativa HONESTA de orçamento de IA de um scan proposto (§2.6, dry-run).
+
+    Não fabrica média de tokens (P1): usa LIMITES grounded — o nº de capacidades do
+    plano e o teto de saída por chamada (config). O custo só aparece com preço
+    verificado; senão fica UNVERIFIED e a estimativa é apresentada em tokens.
+    Enriquecimento é adicional (+1 chamada por CLASSE de finding, desconhecido antes)."""
+
+    capabilities: int
+    planning_calls_min: int
+    planning_calls_max: int
+    max_output_tokens_per_call: int
+    total_output_tokens_max: int
+    model: str
+    cost_max: CostEstimate | None  # custo dos tokens de saída no teto (entrada extra)
+
+
+def estimate_scan_budget(
+    *,
+    capabilities: int,
+    waves: int,
+    model: str | None,
+    cost_model: CostModel,
+    max_output_tokens: int,
+) -> ScanCostEstimate:
+    """Estimativa grounded do orçamento de IA (§2.6): ``planning_calls`` entre 1 (só o
+    plano inicial) e ``1 + waves`` (um replan por onda executável); teto de saída =
+    ``planning_calls_max × max_output_tokens``. Custo só com preço verificado."""
+    planning_min = 1
+    planning_max = 1 + max(waves, 0)
+    total_out_max = planning_max * max(max_output_tokens, 0)
+    cost = cost_model.cost_for(model, TokenUsage(0, total_out_max)) if model else None
+    return ScanCostEstimate(
+        capabilities=capabilities,
+        planning_calls_min=planning_min,
+        planning_calls_max=planning_max,
+        max_output_tokens_per_call=max_output_tokens,
+        total_output_tokens_max=total_out_max,
+        model=model or "",
+        cost_max=cost,
+    )

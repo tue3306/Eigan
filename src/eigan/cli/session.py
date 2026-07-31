@@ -21,6 +21,7 @@ from ..engine.cognitive import (
 
 if TYPE_CHECKING:
     from ..engine.cognitive import CompletionPort
+    from ..observability.cost import ScanCostEstimate
 from ..engine.feeds import FeedCache
 from ..engine.orchestrator import ScanReport
 from ..engine.registry import PluginRegistry
@@ -112,6 +113,7 @@ class PlanOutcome:
     decisions: list[DecisionEntry]
     report: CognitiveReport | None = None  # None em dry-run (nada executado)
     suggestions: list = field(default_factory=list)
+    estimate: "ScanCostEstimate | None" = None  # estimativa de orçamento de IA (§2.6)
 
 
 def _budget(max_ai_tokens: int | None, max_ai_cost_usd: float | None) -> Budget | None:
@@ -119,6 +121,22 @@ def _budget(max_ai_tokens: int | None, max_ai_cost_usd: float | None) -> Budget 
     if max_ai_tokens is None and max_ai_cost_usd is None:
         return None
     return Budget(max_ai_tokens=max_ai_tokens, max_ai_cost_usd=max_ai_cost_usd)
+
+
+def _estimate_budget(decisions: list[DecisionEntry]) -> "ScanCostEstimate":
+    """Estimativa honesta de orçamento de IA do plano (§2.6, dry-run). Ondas ≈ nº de
+    capacidades executáveis (selecionadas); cada onda pode gerar um replan (chamada)."""
+    from ..ai.provider import _max_tokens, active_model
+    from ..observability.cost import CostModel, estimate_scan_budget
+
+    waves = sum(1 for d in decisions if d.action == "selected")
+    return estimate_scan_budget(
+        capabilities=len(decisions),
+        waves=waves,
+        model=active_model(),
+        cost_model=CostModel.from_config(),
+        max_output_tokens=_max_tokens(),
+    )
 
 
 def plan_scan(
@@ -163,6 +181,7 @@ def plan_scan(
             planner_name=planner.name,
             ai_used=bool(getattr(planner, "ai_generated", False)),
             decisions=decisions,
+            estimate=_estimate_budget(decisions),
         )
 
     # Execução real: a IA é obrigatória (§3.4/ADR-0012). Sem provedor → recusa
