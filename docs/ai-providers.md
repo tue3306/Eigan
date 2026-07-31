@@ -63,6 +63,13 @@ o relatório. Não existe "melhor" único — combina bem por tarefa:
 - **Privacidade máxima / dados sensíveis / offline:** **Ollama** (local). Nada sai
   da máquina — não há envio a terceiros, então também não há custo por token.
   Modelos locais raciocinam menos que os de topo, mas mantêm a autonomia básica.
+
+> **Custo-zero ≠ "sem IA" (P5, §2.8):** o Ollama local elimina o custo por token e
+> mantém os dados no perímetro, mas **ainda é ter um provedor** — a IA continua
+> comandando o scan. Não existe "modo sem IA" ([ADR-0012](adr/0012-ai-native-mandatory.md)).
+> O pipeline completo (plan → scan → análise → relatório) roda **fim a fim** nesse
+> caminho, verificado por teste hermético (sem rede, sem chave) — é o caminho
+> **recomendado para dado sensível**.
 - **Empresas em Azure (governança/residência de dados):** **Azure OpenAI**.
 
 **Regra prática:** um provedor forte (Claude/GPT) como principal + Ollama como
