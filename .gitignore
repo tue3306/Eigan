@@ -29,6 +29,10 @@ eigan-screenshots/
 # fonte de verdade dos princípios do projeto.
 CLAUDE.md
 
+# Documentos de planejamento/roadmap local (não pertencem ao repositório público).
+Prompt.txt
+/Prompt*.txt
+
 # Artefatos de execução de ferramentas externas (saída de scan, nunca versionar)
 /None
 /gowitness.jsonl
