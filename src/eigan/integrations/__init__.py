@@ -6,6 +6,14 @@ o núcleo (construção de payload, filtro por severidade) é puro e testável.
 """
 
 from .siem import finding_to_cef, to_cef
+from .tracker import WorkItemProposal, propose_work_items
 from .webhooks import WebhookNotifier, build_finding_payload
 
-__all__ = ["WebhookNotifier", "build_finding_payload", "finding_to_cef", "to_cef"]
+__all__ = [
+    "WebhookNotifier",
+    "WorkItemProposal",
+    "build_finding_payload",
+    "finding_to_cef",
+    "propose_work_items",
+    "to_cef",
+]
