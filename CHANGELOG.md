@@ -42,6 +42,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   se conta privilegiada), **AS-REP roasting** e **delegações** (unconstrained fora de DC,
   constrained, RBCD) a partir de atributos coletados; ordenado por severidade
   (**ADR-0047**).
+- **TIER X.11 — correlação inteligente:** `analysis/ad/scenarios.py` combina sinais de AD
+  em **cenários únicos priorizados** (Kerberoasting+privilegiada+senha fraca; ESC1+template
+  +permissões; Shadow Creds+ACL; NTLM Relay+SMB signing; Spraying+MFA ausente), evitando
+  duplicação, com confiança transparente (**ADR-0048**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
