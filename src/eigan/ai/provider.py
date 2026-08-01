@@ -253,6 +253,7 @@ _SYSTEM_PROMPT = (
     "em português, em duas seções rotuladas exatamente 'EXPLICAÇÃO:' e 'REMEDIAÇÃO:'."
 )
 
+
 def _ai_cache_path() -> str | None:
     """Cache de resposta persistente (§2.3) se ``EIGAN_AI_CACHE_DIR`` estiver
     definido; senão None (cache só em memória, dentro do scan)."""
