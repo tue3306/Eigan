@@ -73,6 +73,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 20.1 — RBAC:** papéis com menor privilégio (`security/rbac.py`:
   admin/operator/analyst/auditor) + tokens com escopo por engajamento, expiração e
   revogação; token nunca em claro (só SHA-256); aditivo ao token único (**ADR-0035**).
+- **TIER 24.2 — contrato do Finding:** JSON Schema versionado e gerado do modelo
+  (`findings/contract.py`, `FINDING_SCHEMA_VERSION`); campos garantidos aos consumidores
+  travados por teste — remover um é mudança quebrante explícita (**ADR-0043**).
 - **TIER 13.1 — supressão de FP:** regras de supressão versionadas
   (`findings/suppression.py`) por ativo/CWE/fingerprint/título, com veredito
   FALSE_POSITIVE/ACCEPTED_RISK; exige decisão humana (P9); finding suprimido é **marcado**,
