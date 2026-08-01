@@ -10,6 +10,7 @@ próprio (busca em grafo), sem copiar de nenhuma ferramenta de terceiro (P7).
 from .adcs import CaConfiguration, CertificateTemplate, EscFinding, classify_adcs
 from .attackpath import AttackPath, PathStep, find_attack_paths, shortest_attack_path
 from .kerberos import AdAccount, KerberosFinding, assess_kerberos
+from .password import PasswordFinding, PasswordPolicy, PwAccount, assess_passwords
 from .scenarios import AdSignal, AttackScenario, CombinationRule, correlate_scenarios
 
 __all__ = [
@@ -22,8 +23,12 @@ __all__ = [
     "CombinationRule",
     "EscFinding",
     "KerberosFinding",
+    "PasswordFinding",
+    "PasswordPolicy",
     "PathStep",
+    "PwAccount",
     "assess_kerberos",
+    "assess_passwords",
     "classify_adcs",
     "correlate_scenarios",
     "find_attack_paths",
