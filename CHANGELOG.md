@@ -49,6 +49,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER X.8 — Shadow Credentials:** `analysis/ad/shadowcreds.py` sinaliza
   `msDS-KeyCredentialLink` gravável por baixo privilégio (crítico em objeto privilegiado)
   e presença do atributo para revisão de persistência (**ADR-0051**).
+- **TIER X.9 / P8 — credencial segura:** `security/secrets.py::SecretHandle` — segredo
+  nunca aparece em repr/str/format/log, só via `reveal()`; comparação em tempo constante;
+  `scrub()` remove o valor de textos; sem falso wipe de memória (limite honesto)
+  (**ADR-0054**).
 - **TIER X.4 — senha:** `analysis/ad/password.py` avalia política (sem lockout →
   spraying, comprimento/complexidade fracos, sem expiração) e contas (privilegiada sem
   MFA, inativa, senha nunca expira, órfã); produz os sinais que alimentam X.11; não
