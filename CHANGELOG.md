@@ -56,6 +56,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 20.1 — RBAC:** papéis com menor privilégio (`security/rbac.py`:
   admin/operator/analyst/auditor) + tokens com escopo por engajamento, expiração e
   revogação; token nunca em claro (só SHA-256); aditivo ao token único (**ADR-0035**).
+- **TIER 13.1 — supressão de FP:** regras de supressão versionadas
+  (`findings/suppression.py`) por ativo/CWE/fingerprint/título, com veredito
+  FALSE_POSITIVE/ACCEPTED_RISK; exige decisão humana (P9); finding suprimido é **marcado**,
+  nunca removido (P2); reversível e auditável por `digest` (**ADR-0038**).
 - **TIER 19 — governança de IA:** `docs/ai-governance.md` + model cards;
   **proveniência** da decisão de IA no report; monitoramento de **degradação**;
   **red-team** da própria IA; **fila HITL** com fail-safe.
