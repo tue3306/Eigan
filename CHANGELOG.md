@@ -42,6 +42,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   se conta privilegiada), **AS-REP roasting** e **delegações** (unconstrained fora de DC,
   constrained, RBCD) a partir de atributos coletados; ordenado por severidade
   (**ADR-0047**).
+- **TIER X.7 — NTLM:** `analysis/ad/ntlm.py` sinaliza SMB/LDAP signing não exigido, LDAP
+  sem channel binding (crítico em DC) e NTLMv1 permitido — exposição a NTLM relay
+  (**ADR-0050**).
 - **TIER X.4 — senha:** `analysis/ad/password.py` avalia política (sem lockout →
   spraying, comprimento/complexidade fracos, sem expiração) e contas (privilegiada sem
   MFA, inativa, senha nunca expira, órfã); produz os sinais que alimentam X.11; não
