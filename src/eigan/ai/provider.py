@@ -22,6 +22,7 @@ from typing import Any
 from ..findings.schema import Finding, Severity
 from ..knowledge.loader import KnowledgeBase
 from .cache import ResponseCache
+from .sanitize import redact  # ponto único de redaction (§11.2); reexportado aqui
 
 
 @dataclass
@@ -251,25 +252,6 @@ _SYSTEM_PROMPT = (
     "NUNCA invente CVE, versão, score ou fato que não esteja nas evidências. Responda "
     "em português, em duas seções rotuladas exatamente 'EXPLICAÇÃO:' e 'REMEDIAÇÃO:'."
 )
-
-_SECRET_PATTERNS = [
-    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----.*?-----END [A-Z ]*PRIVATE KEY-----", re.S),
-    re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key id
-    re.compile(r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+"),  # JWT
-    re.compile(
-        r"(?i)\b(api[_-]?key|token|secret|password|passwd|pwd|authorization|bearer)\b\s*[:=]\s*\S+"
-    ),
-    re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # e-mail (PII)
-]
-
-
-def redact(text: str) -> str:
-    """Remove segredos/PII antes de enviar a um provedor EXTERNO (§7)."""
-    out = text
-    for pattern in _SECRET_PATTERNS:
-        out = pattern.sub("[REDACTED]", out)
-    return out
-
 
 def _ai_cache_path() -> str | None:
     """Cache de resposta persistente (§2.3) se ``EIGAN_AI_CACHE_DIR`` estiver

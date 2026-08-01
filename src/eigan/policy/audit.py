@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -32,19 +31,9 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..ai.sanitize import redact as _redact  # ponto único de redaction (§11.2, P8)
+
 GENESIS_HASH = "0" * 64
-
-# Redaction-piso (§18.3/P8) — o §11.2 unifica a política completa em ai/sanitize.
-_SECRET_KV = re.compile(
-    r"(?i)\b(api[_-]?key|token|secret|password|passwd|pwd|authorization|bearer)\b\s*[:=]\s*\S+"
-)
-_EMAIL = re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b")
-
-
-def _redact(text: str) -> str:
-    """Remove segredo/PII de um campo textual antes de persistir (P8)."""
-    out = _SECRET_KV.sub(r"\1=[REDACTED]", text)
-    return _EMAIL.sub("[REDACTED]", out)
 
 
 class AuditEntry(BaseModel):

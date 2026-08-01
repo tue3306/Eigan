@@ -50,6 +50,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   por **HMAC-SHA256** (segredo do operador, nunca versionado); adulterar campo/validade
   invalida a assinatura; `verify()` respeita vigência e **expiração** em tempo constante
   (**ADR-0033**).
+- **TIER 11.2 — redaction unificada:** política de segredo/PII consolidada num ponto
+  único (`ai/sanitize.py::redact` — PEM/AWS/JWT/`chave=valor`/e-mail); `ai/provider` e a
+  trilha de auditoria delegam a ela (fim da duplicação) (**ADR-0036**).
 - **TIER 20.1 — RBAC:** papéis com menor privilégio (`security/rbac.py`:
   admin/operator/analyst/auditor) + tokens com escopo por engajamento, expiração e
   revogação; token nunca em claro (só SHA-256); aditivo ao token único (**ADR-0035**).
