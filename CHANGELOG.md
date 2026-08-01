@@ -118,6 +118,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   (`findings/suppression.py`) por ativo/CWE/fingerprint/título, com veredito
   FALSE_POSITIVE/ACCEPTED_RISK; exige decisão humana (P9); finding suprimido é **marcado**,
   nunca removido (P2); reversível e auditável por `digest` (**ADR-0038**).
+- **TIER 13.2 — baseline de risco aceito:** `findings/baseline.py` particiona um scan em
+  **novos** / **aceitos** / **resolvidos** vs. um baseline de exposições autorizadas
+  (decisão humana obrigatória), destacando a mudança em vez de repetir o aceito
+  (**ADR-0055**).
 - **TIER 19 — governança de IA:** `docs/ai-governance.md` + model cards;
   **proveniência** da decisão de IA no report; monitoramento de **degradação**;
   **red-team** da própria IA; **fila HITL** com fail-safe.
