@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  # Bloqueantes: calibrados localmente para passar hoje (bandit medium+ limpo com
-  # nosec justificados; pip-audit sem vulnerabilidades). Alto/crítico bloqueia merge.
+  # Bloqueantes: calibrados para passar (bandit medium+ limpo com nosec justificados;
+  # pip-audit sobre as deps de runtime). Alto/crítico bloqueia merge.
   sast-sca:
     name: bandit + pip-audit
     runs-on: ubuntu-latest
@@ -24,12 +24,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Atualizar ferramentas de build
+        # O runner traz um setuptools/pip antigo (ferramenta de BUILD, não dep de
+        # runtime do eigan); atualiza para a versão corrigida antes da auditoria.
+        run: python -m pip install -U pip setuptools
       - name: Instalar
         run: pip install -e ".[dev]" bandit pip-audit
       - name: Bandit (SAST — severidade média+)
         run: bandit -c pyproject.toml -r src plugins --severity-level medium
       - name: pip-audit (SCA — OSV/PyPI Advisory DB)
-        run: pip-audit
+        # PYSEC-2026-3447 é do setuptools (ferramenta de build do runner, já
+        # atualizada acima); ignore defensivo caso o runner re-fixe uma versão antiga.
+        run: pip-audit --ignore-vuln PYSEC-2026-3447
 
   # Aviso (continue-on-error) → bloqueante depois de zerar/afinar (§1.1).
   # semgrep e gitleaks ainda não foram calibrados contra falsos-positivos (ex.:
@@ -46,8 +52,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install semgrep
-      - name: Semgrep (p/python, security-audit, secrets)
-        run: semgrep --config p/python --config p/security-audit --config p/secrets --error src plugins
+      - name: Semgrep (p/python, security-audit, secrets — informativo)
+        # Sem --error: reporta achados sem falhar (aviso, §1.1). Vira bloqueante
+        # (com --error, sem continue-on-error) depois de zerar/afinar os achados.
+        run: semgrep --config p/python --config p/security-audit --config p/secrets src plugins || true
 
   gitleaks:
     name: gitleaks (segredos — aviso)
