@@ -9,6 +9,12 @@ from .builder import build_graph
 from .correlation import AttackChain, AttackStep, correlate_attack_chains
 from .graph import GraphConflict, GraphDiff, KnowledgeGraph
 from .model import Edge, EdgeKind, Node, NodeKind
+from .query import (
+    assets_added_since,
+    assets_affected_by,
+    reference_prevalence,
+    riskiest_assets,
+)
 
 __all__ = [
     "AttackChain",
@@ -20,6 +26,10 @@ __all__ = [
     "KnowledgeGraph",
     "Node",
     "NodeKind",
+    "assets_added_since",
+    "assets_affected_by",
     "build_graph",
     "correlate_attack_chains",
+    "reference_prevalence",
+    "riskiest_assets",
 ]

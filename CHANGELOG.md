@@ -27,6 +27,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   cresce com diversidade de ferramentas), **risco contextual** (severidade modulada pela
   confiança, não CVSS cru) e **narrativa determinística**; referências vindas do grafo,
   nada inventado (**ADR-0041**).
+- **Knowledge Graph (consultas):** `graph.query` — **Impact Analysis** (ativos afetados
+  por uma CWE/OWASP/MITRE), histórico (`assets_added_since`), prevalência de referências
+  e ranking de risco (`riskiest_assets`), navegando o grafo (**ADR-0042**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
