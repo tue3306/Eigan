@@ -38,6 +38,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER X.5/X.6 — AD CS / ESC:** `analysis/ad/adcs.py` classifica **ESC1–ESC8** a partir
   de atributos coletados de template/CA (implementação própria, condições padrão da
   indústria), com severidade e justificativa; indicativo, não atestação (**ADR-0046**).
+- **TIER X.3 — Kerberos:** `analysis/ad/kerberos.py` sinaliza **kerberoasting** (crítico
+  se conta privilegiada), **AS-REP roasting** e **delegações** (unconstrained fora de DC,
+  constrained, RBCD) a partir de atributos coletados; ordenado por severidade
+  (**ADR-0047**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro

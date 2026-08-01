@@ -9,13 +9,17 @@ próprio (busca em grafo), sem copiar de nenhuma ferramenta de terceiro (P7).
 
 from .adcs import CaConfiguration, CertificateTemplate, EscFinding, classify_adcs
 from .attackpath import AttackPath, PathStep, find_attack_paths, shortest_attack_path
+from .kerberos import AdAccount, KerberosFinding, assess_kerberos
 
 __all__ = [
+    "AdAccount",
     "AttackPath",
     "CaConfiguration",
     "CertificateTemplate",
     "EscFinding",
+    "KerberosFinding",
     "PathStep",
+    "assess_kerberos",
     "classify_adcs",
     "find_attack_paths",
     "shortest_attack_path",
