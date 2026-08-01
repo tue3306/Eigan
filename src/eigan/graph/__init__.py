@@ -6,10 +6,13 @@ isolados.
 """
 
 from .builder import build_graph
+from .correlation import AttackChain, AttackStep, correlate_attack_chains
 from .graph import GraphConflict, GraphDiff, KnowledgeGraph
 from .model import Edge, EdgeKind, Node, NodeKind
 
 __all__ = [
+    "AttackChain",
+    "AttackStep",
     "Edge",
     "EdgeKind",
     "GraphConflict",
@@ -18,4 +21,5 @@ __all__ = [
     "Node",
     "NodeKind",
     "build_graph",
+    "correlate_attack_chains",
 ]

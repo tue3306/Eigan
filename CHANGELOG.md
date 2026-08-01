@@ -22,6 +22,11 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   dos findings — ativo **AFFECTED_BY** finding, finding **REFERENCES** CWE/OWASP/MITRE,
   com a ferramenta como evidência; só cria o que há evidência (P1); idempotente e
   acumulativo (**ADR-0040**).
+- **Correlation Engine (grafo):** `graph.correlate_attack_chains` correlaciona as
+  exposições de um ativo em **cadeias de ataque** com **confidence** (0-100, transparente,
+  cresce com diversidade de ferramentas), **risco contextual** (severidade modulada pela
+  confiança, não CVSS cru) e **narrativa determinística**; referências vindas do grafo,
+  nada inventado (**ADR-0041**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
