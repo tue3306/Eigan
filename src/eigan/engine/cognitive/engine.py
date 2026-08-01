@@ -163,6 +163,27 @@ class CognitiveReport:
         """Ferramentas sugeridas mas não executadas (indisponíveis/roadmap)."""
         return [s.tool for s in self.suggestions]
 
+    def ai_provenance(self) -> dict[str, object]:
+        """Proveniência da decisão de IA (§19.2): responde 'como isto foi produzido?'.
+
+        Reúne planner/modelo(s), versão do prompt (§2.7), tokens/cache, nº de chamadas e
+        se houve recurso ao substrato determinístico — para o relatório, a timeline e a
+        trilha de auditoria. Atribuível a modelo, prompt e custo (P9)."""
+        from ...ai.cache import CACHE_VERSION
+
+        return {
+            "planner": self.planner_name,
+            "ai_used": self.ai_used,
+            "prompt_version": CACHE_VERSION,
+            "models": sorted(self.token_usage_by_model),
+            "total_tokens": self.token_usage.total_tokens,
+            "cache_read_tokens": self.token_usage.cache_read_tokens,
+            "ai_calls": self.ai_calls,
+            "parse_failures": self.ai_parse_failures,
+            "grounding_discards": self.ai_grounding_discards,
+            "fell_back_to_substrate": (self.ai_parse_failures > 0) or (not self.ai_used),
+        }
+
 
 class _MeteredCompletion:
     """Envolve a porta de IA para medir tokens por scan (observabilidade, ADR-0025).

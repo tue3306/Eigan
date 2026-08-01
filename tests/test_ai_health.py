@@ -61,3 +61,26 @@ def test_healthy_run_has_no_degradation() -> None:
     r = _run(_Clean())
     assert r.ai_parse_failures == 0 and r.ai_grounding_discards == 0
     assert r.ai_planner_calls >= 1
+
+
+class _MeteredClean:
+    def available(self) -> bool:
+        return True
+
+    def complete(self, system: str, user: str, *, json_mode: bool = False) -> str:
+        from eigan.observability.usage import record_completion
+
+        record_completion(
+            "fake", "modelo-x", {"usage": {"prompt_tokens": 30, "completion_tokens": 12}}
+        )
+        return '{"plan": ["port_discovery"], "next": [], "stop_when": "x"}'
+
+
+def test_ai_provenance_attributes_decision() -> None:
+    # §19.2: 'como esta conclusão foi produzida?' — atribuível a modelo, prompt e custo.
+    r = _run(_MeteredClean())
+    prov = r.ai_provenance()
+    assert prov["planner"] == "agentic" and prov["ai_used"] is True
+    assert prov["prompt_version"]  # versão do prompt presente (governança §2.7)
+    assert prov["total_tokens"] == 42 and "fake:modelo-x" in prov["models"]
+    assert prov["parse_failures"] == 0 and prov["fell_back_to_substrate"] is False
