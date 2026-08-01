@@ -37,6 +37,14 @@ CREATE TABLE IF NOT EXISTS findings (
 CREATE INDEX IF NOT EXISTS idx_findings_scan ON findings(scan_id);
 """
 
+#: Número de schema atual (§8.2). Sobe quando uma migração numerada é adicionada.
+_SCHEMA_VERSION = 1
+
+
+class SchemaVersionError(RuntimeError):
+    """O banco é de uma versão de schema **mais nova** que a suportada — recusado
+    para NÃO destruir dados (§8.2). Atualize o EIGAN para abrir este banco."""
+
 
 def restore(backup_path: str | Path, target_path: str | Path) -> None:
     """Restaura um backup para ``target_path`` (§27.1), verificando a integridade do
@@ -78,9 +86,25 @@ class FindingStore:
         if self._path != ":memory:":
             self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA busy_timeout=30000")
+        self._conn.execute("PRAGMA foreign_keys=ON")
         self._conn.executescript(_SCHEMA)
-        self._migrate()
+        self._check_and_migrate()
         self._conn.commit()
+
+    def _check_and_migrate(self) -> None:
+        """Versionamento de schema (§8.2) via ``PRAGMA user_version``.
+
+        Banco de versão **futura** é RECUSADO (nunca destruído); versões antigas são
+        migradas ao schema atual (idempotente) e o novo número é gravado. Banco vazio
+        (fresh) recebe a versão atual."""
+        version = int(self._conn.execute("PRAGMA user_version").fetchone()[0])
+        if version > _SCHEMA_VERSION:
+            raise SchemaVersionError(
+                f"banco na versão de schema {version}, mais nova que a suportada "
+                f"({_SCHEMA_VERSION}). Recusado para não destruir dados — atualize o EIGAN."
+            )
+        self._migrate()
+        self._conn.execute(f"PRAGMA user_version = {_SCHEMA_VERSION}")  # int confiável, sem injeção
 
     def _migrate(self) -> None:
         """Migrações idempotentes de schema (ADD COLUMN se faltar). Mantém bancos
