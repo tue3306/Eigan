@@ -34,7 +34,8 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   (`COMPUTER`, arestas `MEMBER_OF`/`HAS_CONTROL`/`ADMIN_TO`) e algoritmo próprio de
   alcançabilidade que enumera caminhos de escalonamento até alvos de alto valor (ex.:
   Domain Admins), corta ciclos, ordena do mais curto; só a partir das relações coletadas
-  (P1) (**ADR-0045**).
+  (P1) (**ADR-0045**); e `build_ad_graph` (ADR-0053) constrói esse grafo a partir da
+  coleta de AD (usuários/grupos/computadores + memberships/controle/admin).
 - **TIER X.5/X.6 — AD CS / ESC:** `analysis/ad/adcs.py` classifica **ESC1–ESC8** a partir
   de atributos coletados de template/CA (implementação própria, condições padrão da
   indústria), com severidade e justificativa; indicativo, não atestação (**ADR-0046**).

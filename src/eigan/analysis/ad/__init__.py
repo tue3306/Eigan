@@ -9,6 +9,7 @@ próprio (busca em grafo), sem copiar de nenhuma ferramenta de terceiro (P7).
 
 from .adcs import CaConfiguration, CertificateTemplate, EscFinding, classify_adcs
 from .attackpath import AttackPath, PathStep, find_attack_paths, shortest_attack_path
+from .graphbuild import AdCollection, build_ad_graph
 from .kerberos import AdAccount, KerberosFinding, assess_kerberos
 from .ntlm import NtlmFinding, NtlmHostConfig, assess_ntlm
 from .password import PasswordFinding, PasswordPolicy, PwAccount, assess_passwords
@@ -18,6 +19,7 @@ from .shadowcreds import AdObjectKeyCred, ShadowCredFinding, assess_shadow_crede
 
 __all__ = [
     "AdAccount",
+    "AdCollection",
     "AdObjectKeyCred",
     "AdSignal",
     "AttackPath",
@@ -39,6 +41,7 @@ __all__ = [
     "assess_ntlm",
     "assess_passwords",
     "assess_shadow_credentials",
+    "build_ad_graph",
     "classify_adcs",
     "correlate_scenarios",
     "find_attack_paths",
