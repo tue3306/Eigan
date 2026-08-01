@@ -5,6 +5,7 @@ serialização. O Correlation Engine e a IA consultam o grafo em vez de olhar fi
 isolados.
 """
 
+from .builder import build_graph
 from .graph import GraphConflict, GraphDiff, KnowledgeGraph
 from .model import Edge, EdgeKind, Node, NodeKind
 
@@ -16,4 +17,5 @@ __all__ = [
     "KnowledgeGraph",
     "Node",
     "NodeKind",
+    "build_graph",
 ]

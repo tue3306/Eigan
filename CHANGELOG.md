@@ -18,6 +18,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   tipo detectado, aresta exige nós existentes), consulta (por tipo/atributo/vizinho),
   **diff** scan-a-scan e serialização determinística; base para o Correlation Engine e
   para o histórico da superfície de ataque (**ADR-0039**).
+- **Knowledge Graph (builder):** `graph.build_graph(findings)` popula o grafo a partir
+  dos findings — ativo **AFFECTED_BY** finding, finding **REFERENCES** CWE/OWASP/MITRE,
+  com a ferramenta como evidência; só cria o que há evidência (P1); idempotente e
+  acumulativo (**ADR-0040**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
