@@ -38,6 +38,32 @@ CREATE INDEX IF NOT EXISTS idx_findings_scan ON findings(scan_id);
 """
 
 
+def restore(backup_path: str | Path, target_path: str | Path) -> None:
+    """Restaura um backup para ``target_path`` (§27.1), verificando a integridade do
+    backup ANTES de sobrescrever — um backup corrompido nunca substitui dados bons. O
+    store de destino deve estar **fechado**. Remove sidecars WAL/SHM antigos do destino.
+    """
+    import shutil
+
+    backup_path, target_path = Path(backup_path), Path(target_path)
+    if not backup_path.exists():
+        raise FileNotFoundError(f"backup não encontrado: {backup_path}")
+    con = sqlite3.connect(str(backup_path))
+    try:
+        row = con.execute("PRAGMA integrity_check").fetchone()
+    except sqlite3.DatabaseError as exc:
+        raise ValueError(f"backup ilegível/corrompido: {exc} — restauração recusada") from exc
+    finally:
+        con.close()
+    if not row or row[0] != "ok":
+        raise ValueError(f"backup corrompido (integrity_check={row}) — restauração recusada")
+    shutil.copyfile(backup_path, target_path)
+    for suffix in ("-wal", "-shm"):  # estado antigo do destino não pode contaminar
+        side = Path(str(target_path) + suffix)
+        if side.exists():
+            side.unlink()
+
+
 class FindingStore:
     def __init__(self, db_path: str | Path | None = "eigan.db") -> None:
         # Defesa: um `db_path` nulo/vazio (ex.: caller que esqueceu de resolver o
@@ -191,6 +217,21 @@ class FindingStore:
             "SELECT data FROM findings WHERE scan_id=? ORDER BY id", (scan_id,)
         ).fetchall()
         return [Finding.model_validate_json(r["data"]) for r in rows]
+
+    def integrity_ok(self) -> bool:
+        """``PRAGMA integrity_check`` — True se o banco está íntegro (§27.1)."""
+        row = self._conn.execute("PRAGMA integrity_check").fetchone()
+        return bool(row) and row[0] == "ok"
+
+    def backup(self, dest: str | Path) -> None:
+        """Backup **consistente** para ``dest`` via API de backup online do SQLite
+        (respeita o WAL; não precisa parar o scan). O arquivo resultante é
+        autocontido. Restaure com :func:`restore`."""
+        dst = sqlite3.connect(str(dest))
+        try:
+            self._conn.backup(dst)
+        finally:
+            dst.close()  # fecha (o context manager só commitaria, não fecharia)
 
     def get_scan(self, scan_id: int) -> Optional[dict]:
         row = self._conn.execute("SELECT * FROM scans WHERE id=?", (scan_id,)).fetchone()
