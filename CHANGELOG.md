@@ -30,6 +30,8 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **Knowledge Graph (consultas):** `graph.query` — **Impact Analysis** (ativos afetados
   por uma CWE/OWASP/MITRE), histórico (`assets_added_since`), prevalência de referências
   e ranking de risco (`riskiest_assets`), navegando o grafo (**ADR-0042**).
+- **Knowledge Graph (persistência):** `graph.save_graph`/`load_graph` — grafo **permanente**
+  (JSON determinístico, gravação atômica); acumula entre scans (memória viva) (**ADR-0056**).
 - **TIER X.2 — AD Attack Path:** `analysis/ad` sobre o grafo — tipos de AD aditivos
   (`COMPUTER`, arestas `MEMBER_OF`/`HAS_CONTROL`/`ADMIN_TO`) e algoritmo próprio de
   alcançabilidade que enumera caminhos de escalonamento até alvos de alto valor (ex.:
