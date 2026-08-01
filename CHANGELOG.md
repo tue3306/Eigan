@@ -35,6 +35,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   alcançabilidade que enumera caminhos de escalonamento até alvos de alto valor (ex.:
   Domain Admins), corta ciclos, ordena do mais curto; só a partir das relações coletadas
   (P1) (**ADR-0045**).
+- **TIER X.5/X.6 — AD CS / ESC:** `analysis/ad/adcs.py` classifica **ESC1–ESC8** a partir
+  de atributos coletados de template/CA (implementação própria, condições padrão da
+  indústria), com severidade e justificativa; indicativo, não atestação (**ADR-0046**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro

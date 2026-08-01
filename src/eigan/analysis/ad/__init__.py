@@ -7,11 +7,16 @@ escalonamento de privilégio até um alvo de alto valor (ex.: Domain Admins), co
 próprio (busca em grafo), sem copiar de nenhuma ferramenta de terceiro (P7).
 """
 
+from .adcs import CaConfiguration, CertificateTemplate, EscFinding, classify_adcs
 from .attackpath import AttackPath, PathStep, find_attack_paths, shortest_attack_path
 
 __all__ = [
     "AttackPath",
+    "CaConfiguration",
+    "CertificateTemplate",
+    "EscFinding",
     "PathStep",
+    "classify_adcs",
     "find_attack_paths",
     "shortest_attack_path",
 ]
