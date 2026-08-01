@@ -12,7 +12,12 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 > passaram a rodar de ponta a ponta**; o versionamento volta a subir quando o
 > conjunto estiver estável e polido. Honestidade acima de número de versão (§3.1).
 
-### Added (roadmap de plataforma — TIERs 0–3/7/8/12/19/27)
+### Added (roadmap de plataforma — TIERs 0–3/7/8/11–13/18–20/27 + Knowledge Graph)
+- **Knowledge Graph (núcleo):** pacote `eigan.graph` — nós e arestas **tipados**
+  (`NodeKind`/`EdgeKind`), inserção **idempotente** (mescla + `last_seen`, conflito de
+  tipo detectado, aresta exige nós existentes), consulta (por tipo/atributo/vizinho),
+  **diff** scan-a-scan e serialização determinística; base para o Correlation Engine e
+  para o histórico da superfície de ataque (**ADR-0039**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
