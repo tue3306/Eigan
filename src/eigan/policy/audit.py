@@ -13,17 +13,18 @@ Decisões de design:
   muda seu ``entry_hash``, que é o ``prev_hash`` de N+1 — a divergência se propaga.
 - **Determinismo:** o relógio é injetável (``clock``) para testes reproduzíveis; a
   serialização canônica ordena as chaves. Mesmo conteúdo ⇒ mesmo hash.
-- **Sem segredo/PII em claro (P8):** todo campo textual passa por redaction antes de
-  ser persistido. A redaction plena é unificada no §11.2; aqui aplicamos o piso
-  conservador (segredos ``chave=valor`` e e-mail).
+- **Sem segredo/PII em claro (P8):** todo campo textual passa pela redaction unificada
+  (`ai/sanitize.redact`, §11.2) antes de ser persistido.
 - **Append-only real:** o arquivo é aberto em modo append; a trilha nunca reescreve
-  linhas existentes. A preservação/restore da trilha é o §27.2.
+  linhas existentes. Não há método de deleção — a preservação/backup dedicado e o
+  restore com verificação de cadeia são o §27.2 (`backup_trail`/`restore_trail`).
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -34,6 +35,10 @@ from pydantic import BaseModel, ConfigDict, Field
 from ..ai.sanitize import redact as _redact  # ponto único de redaction (§11.2, P8)
 
 GENESIS_HASH = "0" * 64
+
+
+class AuditIntegrityError(Exception):
+    """Backup/restore recusado: a cadeia de hash da trilha não está íntegra (§27.2)."""
 
 
 class AuditEntry(BaseModel):
@@ -153,6 +158,24 @@ class AuditTrail:
         self._count = seq
         return entry
 
+    def record_purge(
+        self,
+        *,
+        actor: str,
+        target: str,
+        engagement: str | None = None,
+        detail: str = "",
+    ) -> AuditEntry:
+        """Registra um expurgo (§11.3) **na** trilha — ela grava que o expurgo ocorreu,
+        sem reter o dado expurgado e sem se apagar. A trilha sobrevive ao expurgo (§27.2).
+        """
+        return self.append(
+            "purge",
+            actor=actor,
+            target=target,
+            metadata={"engagement": engagement or "", "detail": detail},
+        )
+
     def entries(self) -> Iterator[AuditEntry]:
         """Itera as entradas na ordem de gravação."""
         if not self.path.exists():
@@ -182,3 +205,51 @@ class AuditTrail:
                 return AuditVerification(False, count, entry.seq, "entry_hash adulterado")
             prev = entry.entry_hash
         return AuditVerification(True, count)
+
+
+# ── Preservação: backup dedicado + restore com verificação de cadeia (§27.2) ──
+# A trilha tem requisito mais forte que os findings: não pode ser perdida nem reescrita.
+# O backup é dedicado (não confia no backup do store) e o restore verifica a cadeia de
+# hash ANTES de sobrescrever o destino — nunca troca uma trilha íntegra por um backup
+# corrompido (mesmo princípio do restore do store, §27.1).
+
+
+def backup_trail(trail: AuditTrail, dest: str | Path) -> AuditVerification:
+    """Copia a trilha para ``dest`` e devolve a verificação da cadeia da origem.
+
+    A cópia é fiel (preserva o append-only). O resultado informa honestamente se a
+    origem estava íntegra no momento do backup (P2) — o chamador decide o que fazer com
+    um backup de trilha já comprometida."""
+    result = trail.verify()
+    dest_path = Path(dest)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    if trail.path.exists():
+        shutil.copy2(trail.path, dest_path)
+    else:
+        dest_path.write_text("", encoding="utf-8")  # trilha vazia → backup vazio
+    return result
+
+
+def restore_trail(
+    src: str | Path,
+    dest: str | Path,
+    *,
+    clock: Callable[[], datetime] | None = None,
+) -> AuditTrail:
+    """Restaura a trilha de ``src`` para ``dest``, **verificando a cadeia antes** de
+    sobrescrever. Backup com cadeia quebrada ⇒ :class:`AuditIntegrityError` e o destino
+    permanece intocado. Pós-condição: a trilha restaurada verifica com sucesso."""
+    src_path, dest_path = Path(src), Path(dest)
+    source_check = AuditTrail(src_path, clock=clock).verify()
+    if not source_check.ok:
+        raise AuditIntegrityError(
+            f"backup da trilha corrompido (seq {source_check.broken_seq}: "
+            f"{source_check.reason}) — restore recusado, destino intacto"
+        )
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_path, dest_path)
+    restored = AuditTrail(dest_path, clock=clock)
+    post = restored.verify()
+    if not post.ok:  # defesa em profundidade — nunca deve acontecer se a origem passou
+        raise AuditIntegrityError("cadeia quebrada após restore da trilha")
+    return restored

@@ -60,6 +60,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   **proveniência** da decisão de IA no report; monitoramento de **degradação**;
   **red-team** da própria IA; **fila HITL** com fail-safe.
 - **TIER 27.1 — continuidade:** backup consistente + restore verificado do store.
+- **TIER 27.2 — preservação da trilha:** backup dedicado + `restore_trail` que verifica
+  a cadeia **antes** de sobrescrever (backup corrompido é recusado, destino intocado);
+  expurgo é registrado NA trilha (`record_purge`), que sobrevive; sem método de deleção
+  (append-only travado por teste) (**ADR-0037**).
 
 ### Security (auditoria de segurança — hardening do próprio produto §4)
 - **SSRF / IPv4-mapped IPv6** (`security/ssrf.py`): o endpoint de metadata de nuvem
