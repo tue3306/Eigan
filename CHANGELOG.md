@@ -35,6 +35,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 8.2 — persistência:** versionamento de schema (`PRAGMA user_version`); banco
   de versão futura é **recusado**, não destruído; `foreign_keys=ON`.
 - **TIER 12.2 — resiliência:** retry com backoff+jitter e **circuit-breaker**.
+- **TIER 18.3 — trilha de auditoria:** trilha **append-only encadeada por hash**
+  (`policy/audit.py`) que detecta edição/remoção/reordenação de entradas; determinística
+  e redigida (P8); `verify()` aponta o `seq` quebrado (**ADR-0031**).
 - **TIER 19 — governança de IA:** `docs/ai-governance.md` + model cards;
   **proveniência** da decisão de IA no report; monitoramento de **degradação**;
   **red-team** da própria IA; **fila HITL** com fail-safe.
