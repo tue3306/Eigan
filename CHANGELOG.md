@@ -92,6 +92,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 12.4 — orçamento por ferramenta:** primitivas `Deadline` (prazo de parede) e
   `cap_output` (teto de bytes sem partir UTF-8, com flag de truncamento) + `ToolLimits`;
   contém ferramenta lenta e parser malicioso por tamanho de saída (**ADR-0044**).
+- **TIER 10.4 — classificação da informação:** `policy/classification.py` — nível de
+  1ª classe (Público→Restrito); engajamento = mais restritivo; CONFIDENCIAL+ exige
+  redaction; **RESTRITO** não vai a provedor externo (soberania, P8) (**ADR-0060**).
 - **TIER 18.1 — Regras de Engajamento:** RoE declarativo por engajamento
   (`policy/roe.py`, YAML): janelas de tempo (blackout), exclusões de host/porta/path,
   classe de teste máxima autorizada (reusa `ImpactClass`), teto de taxa e contatos de
