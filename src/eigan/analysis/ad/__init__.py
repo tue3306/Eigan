@@ -13,9 +13,11 @@ from .kerberos import AdAccount, KerberosFinding, assess_kerberos
 from .ntlm import NtlmFinding, NtlmHostConfig, assess_ntlm
 from .password import PasswordFinding, PasswordPolicy, PwAccount, assess_passwords
 from .scenarios import AdSignal, AttackScenario, CombinationRule, correlate_scenarios
+from .shadowcreds import AdObjectKeyCred, ShadowCredFinding, assess_shadow_credentials
 
 __all__ = [
     "AdAccount",
+    "AdObjectKeyCred",
     "AdSignal",
     "AttackPath",
     "AttackScenario",
@@ -30,9 +32,11 @@ __all__ = [
     "PasswordPolicy",
     "PathStep",
     "PwAccount",
+    "ShadowCredFinding",
     "assess_kerberos",
     "assess_ntlm",
     "assess_passwords",
+    "assess_shadow_credentials",
     "classify_adcs",
     "correlate_scenarios",
     "find_attack_paths",

@@ -45,6 +45,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER X.7 — NTLM:** `analysis/ad/ntlm.py` sinaliza SMB/LDAP signing não exigido, LDAP
   sem channel binding (crítico em DC) e NTLMv1 permitido — exposição a NTLM relay
   (**ADR-0050**).
+- **TIER X.8 — Shadow Credentials:** `analysis/ad/shadowcreds.py` sinaliza
+  `msDS-KeyCredentialLink` gravável por baixo privilégio (crítico em objeto privilegiado)
+  e presença do atributo para revisão de persistência (**ADR-0051**).
 - **TIER X.4 — senha:** `analysis/ad/password.py` avalia política (sem lockout →
   spraying, comprimento/complexidade fracos, sem expiração) e contas (privilegiada sem
   MFA, inativa, senha nunca expira, órfã); produz os sinais que alimentam X.11; não
