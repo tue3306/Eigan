@@ -130,6 +130,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 16.1 — webhooks:** pacote `integrations` — `WebhookNotifier` entrega findings
   acima de um limiar de severidade a um sink injetável, com payload **redigido** (P8, sem
   evidência bruta) e sem segredo no repo (P4) (**ADR-0057**).
+- **TIER 16.2 — export SIEM (CEF):** `integrations/siem.py` (`to_cef`) exporta findings em
+  **Common Event Format** oficial (cabeçalho + extensão, escapes corretos, severidade
+  0–10), determinístico e redigido (**ADR-0058**).
 - **TIER 27.1 — continuidade:** backup consistente + restore verificado do store.
 - **TIER 27.2 — preservação da trilha:** backup dedicado + `restore_trail` que verifica
   a cadeia **antes** de sobrescrever (backup corrompido é recusado, destino intocado);

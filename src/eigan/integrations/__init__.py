@@ -5,6 +5,7 @@ sem segredo no repositório (P4). O transporte concreto (HTTP) é um adaptador i
 o núcleo (construção de payload, filtro por severidade) é puro e testável.
 """
 
+from .siem import finding_to_cef, to_cef
 from .webhooks import WebhookNotifier, build_finding_payload
 
-__all__ = ["WebhookNotifier", "build_finding_payload"]
+__all__ = ["WebhookNotifier", "build_finding_payload", "finding_to_cef", "to_cef"]
