@@ -12,6 +12,7 @@ from .attackpath import AttackPath, PathStep, find_attack_paths, shortest_attack
 from .kerberos import AdAccount, KerberosFinding, assess_kerberos
 from .ntlm import NtlmFinding, NtlmHostConfig, assess_ntlm
 from .password import PasswordFinding, PasswordPolicy, PwAccount, assess_passwords
+from .pipeline import analyze_ad_scenarios, to_ad_signals
 from .scenarios import AdSignal, AttackScenario, CombinationRule, correlate_scenarios
 from .shadowcreds import AdObjectKeyCred, ShadowCredFinding, assess_shadow_credentials
 
@@ -33,6 +34,7 @@ __all__ = [
     "PathStep",
     "PwAccount",
     "ShadowCredFinding",
+    "analyze_ad_scenarios",
     "assess_kerberos",
     "assess_ntlm",
     "assess_passwords",
@@ -41,4 +43,5 @@ __all__ = [
     "correlate_scenarios",
     "find_attack_paths",
     "shortest_attack_path",
+    "to_ad_signals",
 ]

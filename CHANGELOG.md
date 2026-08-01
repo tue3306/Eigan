@@ -56,6 +56,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   em **cenários únicos priorizados** (Kerberoasting+privilegiada+senha fraca; ESC1+template
   +permissões; Shadow Creds+ACL; NTLM Relay+SMB signing; Spraying+MFA ausente), evitando
   duplicação, com confiança transparente (**ADR-0048**).
+- **TIER X.10/X.11 — integração:** `analysis/ad/pipeline.py` (`to_ad_signals`,
+  `analyze_ad_scenarios`) liga os analisadores → sinais → cenários fim a fim, com
+  mapeamento honesto (só emite o sinal que o finding implica; não fabrica coerção)
+  (**ADR-0052**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
