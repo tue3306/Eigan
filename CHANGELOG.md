@@ -116,6 +116,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 20.1 — RBAC:** papéis com menor privilégio (`security/rbac.py`:
   admin/operator/analyst/auditor) + tokens com escopo por engajamento, expiração e
   revogação; token nunca em claro (só SHA-256); aditivo ao token único (**ADR-0035**).
+- **TIER 21.1 — cadeia de custódia:** `findings/evidence.py` (`seal_evidence`/
+  `verify_evidence`) hasheia e data a evidência na coleta; alteração posterior é
+  detectável; o selo entra na trilha (**ADR-0061**).
 - **TIER 24.2 — contrato do Finding:** JSON Schema versionado e gerado do modelo
   (`findings/contract.py`, `FINDING_SCHEMA_VERSION`); campos garantidos aos consumidores
   travados por teste — remover um é mudança quebrante explícita (**ADR-0043**).
