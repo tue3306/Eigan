@@ -52,6 +52,7 @@ class NodeKind(str, Enum):
     # Identidade / segredos
     USER = "user"
     GROUP = "group"
+    COMPUTER = "computer"  # objeto de computador do AD
     CREDENTIAL = "credential"
     TOKEN = "token"
     CERTIFICATE = "certificate"
@@ -94,6 +95,10 @@ class EdgeKind(str, Enum):
     VALIDATED_BY = "validated_by"
     DISCOVERED_BY = "discovered_by"
     HISTORICALLY_RELATED_TO = "historically_related_to"
+    # Identidade / Active Directory (arestas de escalonamento de privilégio)
+    MEMBER_OF = "member_of"  # principal → grupo
+    HAS_CONTROL = "has_control"  # principal controla objeto (attr 'right': GenericAll, …)
+    ADMIN_TO = "admin_to"  # principal é admin local em um computador
 
 
 @dataclass

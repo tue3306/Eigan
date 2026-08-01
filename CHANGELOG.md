@@ -30,6 +30,11 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **Knowledge Graph (consultas):** `graph.query` — **Impact Analysis** (ativos afetados
   por uma CWE/OWASP/MITRE), histórico (`assets_added_since`), prevalência de referências
   e ranking de risco (`riskiest_assets`), navegando o grafo (**ADR-0042**).
+- **TIER X.2 — AD Attack Path:** `analysis/ad` sobre o grafo — tipos de AD aditivos
+  (`COMPUTER`, arestas `MEMBER_OF`/`HAS_CONTROL`/`ADMIN_TO`) e algoritmo próprio de
+  alcançabilidade que enumera caminhos de escalonamento até alvos de alto valor (ex.:
+  Domain Admins), corta ciclos, ordena do mais curto; só a partir das relações coletadas
+  (P1) (**ADR-0045**).
 - **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
   divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
   fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
