@@ -40,6 +40,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   classe de teste máxima autorizada (reusa `ImpactClass`), teto de taxa e contatos de
   emergência; `RoEViolation` é subclasse de `ScopeViolation`; `digest()` referenciável
   na trilha/autorização (**ADR-0032**).
+- **TIER 18.2 — kill switch:** parada de emergência thread-safe (`engine/killswitch.py`)
+  que encerra ferramentas em execução (`terminate`→`kill`) e faz checkpoints levantarem
+  `ScanAborted`; complementa o cancelamento cooperativo da API (**ADR-0034**).
 - **TIER 18.3 — trilha de auditoria:** trilha **append-only encadeada por hash**
   (`policy/audit.py`) que detecta edição/remoção/reordenação de entradas; determinística
   e redigida (P8); `verify()` aponta o `seq` quebrado (**ADR-0031**).
