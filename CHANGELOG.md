@@ -43,6 +43,10 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 18.3 — trilha de auditoria:** trilha **append-only encadeada por hash**
   (`policy/audit.py`) que detecta edição/remoção/reordenação de entradas; determinística
   e redigida (P8); `verify()` aponta o `seq` quebrado (**ADR-0031**).
+- **TIER 18.4 — autorização assinável:** `policy/authorization.py` assina o engajamento
+  por **HMAC-SHA256** (segredo do operador, nunca versionado); adulterar campo/validade
+  invalida a assinatura; `verify()` respeita vigência e **expiração** em tempo constante
+  (**ADR-0033**).
 - **TIER 19 — governança de IA:** `docs/ai-governance.md` + model cards;
   **proveniência** da decisão de IA no report; monitoramento de **degradação**;
   **red-team** da própria IA; **fila HITL** com fail-safe.
