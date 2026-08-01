@@ -28,7 +28,7 @@ tui = ["textual>=0.60", "rich>=13.0"]
 # httpx: os testes da API usam o TestClient do Starlette (via FastAPI), que exige
 # httpx desde Starlette 0.38. Sem ele em [dev], `pip install -e ".[dev]"` (o que a
 # CI faz) quebraria a coleta dos testes de API. Declarado explícito aqui.
-dev = ["pytest>=8.0", "pytest-cov>=4.0", "ruff>=0.4", "mypy>=1.8", "httpx>=0.27"]
+dev = ["pytest>=8.0", "pytest-cov>=4.0", "ruff>=0.4", "mypy>=1.8", "httpx>=0.27", "hypothesis>=6.0"]
 
 [project.scripts]
 eigan = "eigan.cli.main:main"

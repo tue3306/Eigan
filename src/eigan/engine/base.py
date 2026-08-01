@@ -110,11 +110,30 @@ class BaseToolPlugin(ABC):
                 timed_out=True,
             )
 
+    def safe_parse(self, result: ToolResult, target: str) -> list[Finding]:
+        """Parse defensivo (§7.2): saída de ferramenta vem de um alvo **hostil** — a
+        superfície de ataque mais direta do produto. Qualquer exceção do parser do
+        plugin em entrada malformada é **contida** (retorna ``[]`` e loga), nunca
+        derruba o scan. É o piso de robustez que TODO plugin herda (P6); o ``parse``
+        específico pode ser endurecido por cima, mas o crash nunca vaza para o produto.
+        """
+        try:
+            return self.parse(result, target)
+        except Exception as exc:  # noqa: BLE001 — saída hostil não derruba o produto
+            import logging
+
+            logging.getLogger("eigan.parser").warning(
+                "parser de '%s' falhou em saída malformada (contido, 0 findings): %s",
+                self.name or self.binary,
+                exc,
+            )
+            return []
+
     def scan(self, target: str, *, timeout: int | None = None, **options) -> list[Finding]:
         args = self.build_args(target, **options)
         stdin_data = f"{target}\n" if self.target_via_stdin else None
         result = self._run(args, timeout=timeout, stdin_data=stdin_data)
-        return self.parse(result, target)
+        return self.safe_parse(result, target)
 
 
 # Compat: o nome anterior era ``BaseToolAdapter``. Mantido como alias para não
