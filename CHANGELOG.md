@@ -12,6 +12,34 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 > passaram a rodar de ponta a ponta**; o versionamento volta a subir quando o
 > conjunto estiver estável e polido. Honestidade acima de número de versão (§3.1).
 
+### Added (roadmap de plataforma — TIERs 0–3/7/8/12/19/27)
+- **TIER 0 — veracidade:** `SECURITY.md` coerente com `0.0.0`; teste que trava
+  divergência de versão entre `pyproject`/`__version__`/README/`SECURITY`; teste da
+  fronteira honesta (`built=True/False`); afirmação de suíte de integração sem lastro
+  corrigida; reconciliação IA-obrigatória (ADR-0007/8/9/10 marcados superados por
+  ADR-0012; guarda de gate AI-native; **ADR-0029**). Badge de testes hardcoded removido.
+- **TIER 1 — auto-auditoria (CI):** CodeQL, **bandit** (config + nosec justificados),
+  **pip-audit**, semgrep e gitleaks; gate de cobertura (`fail_under=80`); Dependabot
+  (pip/actions/docker).
+- **TIER 2 — economia de API:** teto de token/custo que interrompe o scan
+  (`--max-tokens`/`--max-cost` + `POST /scans`); **prompt caching** (Anthropic
+  ephemeral) com economia medida; **cache de resposta** por conteúdo (P8, redigido);
+  **dedup semântica** antes da IA (1 análise por classe); **triagem** barata→cara por
+  severidade; **dry-run de custo** honesto no `eigan plan`; **versionamento de prompt**
+  por hash; caminho **Ollama** custo-zero verificado fim a fim.
+- **TIER 3.1 — eval harness:** `evals/` (golden set + runner + métricas), cenário
+  **adversarial** de injeção, `pytest evals/` bloqueante no CI (**ADR-0030**).
+- **TIER 7 — robustez:** `safe_parse` defensivo + **fuzzing genérico** dos parsers
+  (corpus + hypothesis) — conteve 36 crashes reais; property-based do guard **SSRF** +
+  suíte de **regressão** dos bugs históricos.
+- **TIER 8.2 — persistência:** versionamento de schema (`PRAGMA user_version`); banco
+  de versão futura é **recusado**, não destruído; `foreign_keys=ON`.
+- **TIER 12.2 — resiliência:** retry com backoff+jitter e **circuit-breaker**.
+- **TIER 19 — governança de IA:** `docs/ai-governance.md` + model cards;
+  **proveniência** da decisão de IA no report; monitoramento de **degradação**;
+  **red-team** da própria IA; **fila HITL** com fail-safe.
+- **TIER 27.1 — continuidade:** backup consistente + restore verificado do store.
+
 ### Security (auditoria de segurança — hardening do próprio produto §4)
 - **SSRF / IPv4-mapped IPv6** (`security/ssrf.py`): o endpoint de metadata de nuvem
   na forma `::ffff:169.254.169.254` era classificado como *link-local* — e, em
