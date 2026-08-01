@@ -146,6 +146,10 @@ class CognitiveReport:
     token_usage: TokenUsage = field(default_factory=TokenUsage)
     ai_calls: int = 0
     token_usage_by_model: dict[str, TokenUsage] = field(default_factory=dict)
+    # Saúde do componente agêntico (§19.3): observabilidade de degradação da IA.
+    ai_planner_calls: int = 0
+    ai_parse_failures: int = 0
+    ai_grounding_discards: int = 0
 
     # Compat com ScanReport: o CLI/wizard/relatório consomem estes campos sem
     # precisar saber qual engine (determinístico × cognitivo) produziu o report.
@@ -294,6 +298,9 @@ class CognitiveEngine:
         # Medidor de tokens fresco por scan (observabilidade §22, ADR-0025): a
         # completion metrificada registra aqui todo o uso do loop cognitivo.
         self._scan_meter = UsageMeter()
+        # Saúde da IA (§19.3): zera os contadores do planner para medir só este scan.
+        if hasattr(self._planner, "reset_health"):
+            self._planner.reset_health()
         # Policy Engine (ADR-0011 Fase 3): arbitra CADA ação ativa antes de tocar a
         # rede — executar / aprovação humana (HITL) / recusar por ImpactClass. O teto
         # autônomo vem do perfil; exploit_validation exige allow_exploit + HITL.
@@ -752,6 +759,9 @@ class CognitiveEngine:
             token_usage=usage,
             ai_calls=ai_calls,
             token_usage_by_model=by_model,
+            ai_planner_calls=getattr(self._planner, "calls", 0),
+            ai_parse_failures=getattr(self._planner, "parse_failures", 0),
+            ai_grounding_discards=getattr(self._planner, "grounding_discards", 0),
         )
 
     def _ai_budget_stop(self, budget: Budget) -> Optional[StopReason]:

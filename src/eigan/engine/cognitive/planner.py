@@ -326,6 +326,18 @@ class AgenticPlanner:
     name: str = "agentic"
     ai_generated: bool = True
     stop_hint: str = ""
+    # Métricas de degradação do componente agêntico (§19.3): acumuladas por scan e
+    # zeradas por ``reset_health`` no início de cada ``run``. Alta taxa de
+    # ``parse_failures``/``grounding_discards`` indica modelo trocado, prompt inchado
+    # ou provedor instável — observável, não silencioso.
+    calls: int = 0  # chamadas de planejamento à IA
+    parse_failures: int = 0  # respostas inválidas → recurso ao substrato determinístico
+    grounding_discards: int = 0  # ids inventados descartados pelo grounding
+
+    def reset_health(self) -> None:
+        self.calls = 0
+        self.parse_failures = 0
+        self.grounding_discards = 0
 
     @property
     def registry(self) -> PlanRegistryPort:
@@ -374,8 +386,11 @@ class AgenticPlanner:
             return plan
         allowed = {c.value: c for c in candidates}
         for item in out.next:
-            cap = allowed.get(item.capability.strip().lower())  # ids inventados: fora
-            if cap is None or cap in state.executed_capabilities or plan.has(cap):
+            cap = allowed.get(item.capability.strip().lower())
+            if cap is None:  # id inventado/fora da lista → descartado (grounding)
+                self.grounding_discards += 1
+                continue
+            if cap in state.executed_capabilities or plan.has(cap):
                 continue
             self.ai_generated = True
             reason = item.reason.strip() or "onda adaptativa"
@@ -395,13 +410,15 @@ class AgenticPlanner:
             key=lambda c: c.value,
         )
 
-    @staticmethod
-    def _ground(ids: list[str], allowed: dict[str, Capability]) -> list[Capability]:
+    def _ground(self, ids: list[str], allowed: dict[str, Capability]) -> list[Capability]:
         picked: list[Capability] = []
         seen: set[Capability] = set()
         for raw_id in ids:
-            cap = allowed.get(raw_id.strip().lower())  # grounding: fora da lista → descartado
-            if cap is not None and cap not in seen:
+            cap = allowed.get(raw_id.strip().lower())
+            if cap is None:  # grounding: id inventado/fora da lista → descartado
+                self.grounding_discards += 1
+                continue
+            if cap not in seen:
                 seen.add(cap)
                 picked.append(cap)
         return picked
@@ -437,12 +454,14 @@ class AgenticPlanner:
         # Até 2 tentativas com JSON mode: o provedor garante JSON sintaticamente
         # válido (elimina o JSON malformado do GPT-5 que forçava o fallback). A 2ª
         # tentativa cobre o raro caso de o schema não bater na 1ª.
+        self.calls += 1  # §19.3: chamada lógica de planejamento à IA
         last_raw = ""
         for attempt in range(2):
             try:
                 raw = self.completion.complete(_AGENTIC_SYSTEM, user, json_mode=True)
             except Exception as exc:  # noqa: BLE001 — IA instável nunca derruba o plano
                 log.warning("AgenticPlanner: fallback determinístico (%s)", exc)
+                self.parse_failures += 1
                 return None
             last_raw = raw
             out = _parse(raw, model)
@@ -453,6 +472,7 @@ class AgenticPlanner:
             "fallback determinístico",
             len(last_raw),
         )
+        self.parse_failures += 1
         return None
 
 
