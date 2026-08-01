@@ -52,6 +52,9 @@ projeto adota o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **TIER 8.2 — persistência:** versionamento de schema (`PRAGMA user_version`); banco
   de versão futura é **recusado**, não destruído; `foreign_keys=ON`.
 - **TIER 12.2 — resiliência:** retry com backoff+jitter e **circuit-breaker**.
+- **TIER 12.4 — orçamento por ferramenta:** primitivas `Deadline` (prazo de parede) e
+  `cap_output` (teto de bytes sem partir UTF-8, com flag de truncamento) + `ToolLimits`;
+  contém ferramenta lenta e parser malicioso por tamanho de saída (**ADR-0044**).
 - **TIER 18.1 — Regras de Engajamento:** RoE declarativo por engajamento
   (`policy/roe.py`, YAML): janelas de tempo (blackout), exclusões de host/porta/path,
   classe de teste máxima autorizada (reusa `ImpactClass`), teto de taxa e contatos de
