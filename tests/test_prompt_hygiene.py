@@ -25,7 +25,10 @@ from eigan.findings.schema import Finding, Severity
 _PINNED = {
     "AGENTIC_SYSTEM": "cd4dd8da7d702349",
     "AI_SYSTEM": "1371796e3fe1252f",
-    "SYSTEM_PROMPT": "85f71b46e31c8756",
+    # Atualizado ao adicionar a regra anti-injeção (DADOS-DO-ALVO não-confiáveis)
+    # ao prompt do explain — a mesma higiene que as outras superfícies de IA já
+    # tinham. Evals de decisão (§3.1) revalidados. Ver test_audit_fixes.py.
+    "SYSTEM_PROMPT": "34bd0c12636a42aa",
 }
 
 
