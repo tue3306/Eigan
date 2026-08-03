@@ -32,6 +32,8 @@ CLAUDE.md
 # Documentos de planejamento/roadmap local (não pertencem ao repositório público).
 Prompt.txt
 /Prompt*.txt
+TRACKER.local.md
+/*.local.md
 
 # Artefatos de execução de ferramentas externas (saída de scan, nunca versionar)
 /None
