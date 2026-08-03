@@ -13,21 +13,46 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from urllib.parse import urlsplit
 
 from ..findings.schema import Finding, Severity
+from ..perspective import extract_host
 
 # porta ao final de ``host:porta`` — reaproveita a convenção dos parsers de rede.
 _PORT_RE = re.compile(r":(\d{1,5})(?:/\w+)?$")
 
 
 def _asset_host(asset: str) -> str:
-    m = _PORT_RE.search(asset)
-    return asset[: m.start()] if m else asset
+    """Host canônico do ativo (IP, hostname, host:port ou URL).
+
+    Usa a MESMA normalização (``extract_host``) que inventory/correlation/graph —
+    senão dois caminhos do mesmo host (``http://alvo/app`` vs ``http://alvo/login``)
+    viram "ativos" distintos e o diff reporta "novo(s) ativo(s)" falso."""
+    return extract_host(asset)
 
 
 def _port_of(asset: str) -> str | None:
-    m = _PORT_RE.search(asset)
+    """Porta explícita do ativo (``host:port`` ou URL com porta), senão ``None``."""
+    a = asset.strip()
+    if "://" in a:
+        try:
+            port = urlsplit(a).port
+        except ValueError:
+            return None
+        return str(port) if port else None
+    m = _PORT_RE.search(a)
     return m.group(1) if m else None
+
+
+def _service_key(asset: str) -> str | None:
+    """Serviço canônico ``host:port`` do ativo, ou ``None`` se sem porta explícita.
+
+    Normaliza por host+porta (não pela string crua) para que dois caminhos do
+    mesmo ``host:port`` não contem como serviço novo."""
+    port = _port_of(asset)
+    if port is None:
+        return None
+    return f"{_asset_host(asset)}:{port}"
 
 
 @dataclass
@@ -102,8 +127,8 @@ def diff_findings(
     cur_assets = {_asset_host(f.affected_asset) for f in current}
     new_assets = sorted(cur_assets - prev_assets)
 
-    prev_services = {f.affected_asset for f in previous if _port_of(f.affected_asset) is not None}
-    cur_services = {f.affected_asset for f in current if _port_of(f.affected_asset) is not None}
+    prev_services = {k for f in previous if (k := _service_key(f.affected_asset)) is not None}
+    cur_services = {k for f in current if (k := _service_key(f.affected_asset)) is not None}
     new_services = sorted(cur_services - prev_services)
 
     # ordena por risco/severidade para leitura (mais grave primeiro).
