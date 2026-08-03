@@ -148,10 +148,17 @@ class ScanManager:
         self._lock = threading.Lock()
 
     def get(self, job_id: str) -> Optional[ScanJob]:
-        return self._jobs.get(job_id)
+        with self._lock:
+            return self._jobs.get(job_id)
 
     def list_jobs(self) -> list[dict[str, Any]]:
-        return [j.summary() for j in self._jobs.values()]
+        # Copia sob o lock: os endpoints sync rodam no threadpool do FastAPI, e
+        # iterar ``_jobs`` enquanto ``start()`` insere um job dispara
+        # "dictionary changed size during iteration" (→ 500). ``summary()`` sai
+        # do lock (só toma o lock por-job).
+        with self._lock:
+            jobs = list(self._jobs.values())
+        return [j.summary() for j in jobs]
 
     def start(
         self,
@@ -186,16 +193,18 @@ class ScanManager:
             raise ValueError(f"Perspectiva inválida: {perspective!r}") from exc
         profile = OBJECTIVE_PROFILE.get(objective.strip().lower(), "standard")
 
-        with self._lock:
-            job_id = f"job-{next(self._counter)}"
         job = ScanJob(
-            id=job_id,
+            id="",  # atribuído sob o lock abaixo
             targets=list(targets),
             perspective=persp.value,
             profile=profile,
             use_ai=use_ai,
         )
-        self._jobs[job_id] = job
+        # Aloca o id E publica no dict sob o MESMO lock que os leitores
+        # (get/list_jobs) usam — senão a inserção corre com a iteração.
+        with self._lock:
+            job.id = f"job-{next(self._counter)}"
+            self._jobs[job.id] = job
 
         budget = (
             Budget(max_ai_tokens=max_ai_tokens, max_ai_cost_usd=max_ai_cost_usd)
@@ -205,7 +214,7 @@ class ScanManager:
         thread = threading.Thread(
             target=self._run,
             args=(job, persp, profile, override_perspective, budget),
-            name=f"scan-{job_id}",
+            name=f"scan-{job.id}",
             daemon=True,
         )
         thread.start()
