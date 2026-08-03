@@ -1,7 +1,7 @@
 # Imagem da aplicação EIGAN (API/CLI). As ferramentas externas de scan
 # rodam idealmente em containers efêmeros próprios (sandbox); esta imagem traz
 # o núcleo Python + WeasyPrint. Ver docker-compose.yml.
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # Dependências de sistema do WeasyPrint (render PDF) — versões resolvidas pelo
 # apt da distro base (não fixadas de memória).
