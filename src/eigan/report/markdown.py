@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 
 from ..ai.context import severity_counts
 from ..findings.schema import Finding, Severity
+from .corporate import mask_sensitive as _mask_secrets
 
 if TYPE_CHECKING:
     from ..ai.remediation import RemediationPlan
@@ -65,7 +66,13 @@ def render_markdown(
     ai_remediation: "RemediationPlan | None" = None,
     tool_version: str = "",
     feeds_meta: dict | None = None,
+    mask_sensitive: bool = True,
 ) -> str:
+    # Mascaramento de segredos ligado por padrão — mesmo default do HTML/PDF
+    # (``report.html.j2`` filtra ``f.evidence | mask``). Sem isto, ``--format md``
+    # vazava chaves/tokens capturados em ``evidence`` que os outros formatos
+    # ocultam (§Tratamento de Informações Sensíveis). ``--show-sensitive`` desliga.
+    _mask = _mask_secrets if mask_sensitive else (lambda s: s)
     targets = targets or []
     counts = severity_counts(findings)
     score, grade = _posture(counts)
@@ -144,9 +151,11 @@ def render_markdown(
             if f.cwe or f.owasp:
                 L.append(f"- **Classificação:** {f.cwe or ''} {f.owasp or ''}".rstrip())
             if f.description:
-                L.append(f"- **Descrição:** {f.description}")
+                L.append(f"- **Descrição:** {_mask(f.description)}")
             if f.evidence:
-                L.append(f"- **Evidência:** `{f.evidence[:200].strip()}`")
+                # Mascara ANTES de truncar: um segredo perto do corte de 200 não
+                # pode escapar pela borda da truncagem.
+                L.append(f"- **Evidência:** `{_mask(f.evidence).strip()[:200]}`")
             L.append("")
 
     # Plano de remediação da IA (o que arrumar + como)

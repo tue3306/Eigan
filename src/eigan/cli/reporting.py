@@ -84,6 +84,7 @@ def write_report(
                 ai_remediation=ai_remediation,
                 tool_version=TOOL_VERSION,
                 feeds_meta=feeds_meta,
+                mask_sensitive=mask,
             )
         )
     elif fmt == "html":
