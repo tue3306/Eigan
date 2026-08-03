@@ -158,14 +158,22 @@ def safe_get(
         host = parts.hostname
         if not host:
             return None
+        # ``SplitResult.port`` levanta ValueError p/ porta fora de 0-65535 ou
+        # não-numérica. O destino é atacante-controlado (revalidamos o Location
+        # do redirect), então lê a porta aqui — fora do try de request — e trata
+        # porta inválida como inacessível (None), sem estourar o contrato.
+        try:
+            port = parts.port
+        except ValueError:
+            return None
         ips = resolve_and_screen(host, allow_private=allow_private)  # pode levantar SsrfError
-        conn = _make_conn(scheme, ips[0], parts.port, timeout)
+        conn = _make_conn(scheme, ips[0], port, timeout)
         path = parts.path or "/"
         if parts.query:
             path += "?" + parts.query
         headers = {
             "User-Agent": user_agent,
-            "Host": _host_header(host, parts.port, scheme),
+            "Host": _host_header(host, port, scheme),
             "Accept": "*/*",
             "Connection": "close",
         }

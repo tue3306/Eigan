@@ -69,7 +69,10 @@ def token_matches(provided: str | None) -> bool:
     if not provided:
         return False
     expected = load_or_create_token()
-    return secrets.compare_digest(provided, expected)
+    # ``compare_digest`` levanta TypeError em ``str`` com qualquer caractere
+    # não-ASCII. O token do cliente pode conter isso (header latin-1 ou
+    # ``?token=caf%C3%A9``); comparar em bytes garante 401 (False), não um 500.
+    return secrets.compare_digest(provided.encode("utf-8"), expected.encode("utf-8"))
 
 
 def is_loopback(host: str | None) -> bool:
