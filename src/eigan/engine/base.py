@@ -90,6 +90,8 @@ class BaseToolPlugin(ABC):
                 input=stdin_data,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",  # bytes inválidos da ferramenta NÃO podem derrubar o runner
                 timeout=timeout or self.default_timeout,
                 shell=False,  # explicitamente nunca shell
                 check=False,
