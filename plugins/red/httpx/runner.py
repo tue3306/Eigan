@@ -40,13 +40,15 @@ class HttpxRunner(BaseToolPlugin):
             "/usr/local/bin",
             "/root/go/bin",
         ]
+        names = ("httpx", "httpx.exe") if os.name == "nt" else ("httpx",)
         for d in dirs:
             if not d:
                 continue
-            p = os.path.join(d, "httpx")
-            if p not in seen and os.path.isfile(p) and os.access(p, os.X_OK):
-                seen.add(p)
-                out.append(p)
+            for name in names:
+                p = os.path.join(d, name)
+                if p not in seen and os.path.isfile(p) and os.access(p, os.X_OK):
+                    seen.add(p)
+                    out.append(p)
         return out
 
     def _pd_binary(self) -> str | None:
@@ -79,6 +81,8 @@ class HttpxRunner(BaseToolPlugin):
                 [path, "-h"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=10,
                 shell=False,
                 check=False,
